@@ -1,6 +1,9 @@
 <script lang="ts">
   export let videoSrc: string;
-  export function currentTime(): number { return videoElement.currentTime }
+  export let subtitleSrc: string;
+  export function currentTime(): number {
+    return videoElement.currentTime;
+  }
 
   let videoElement: HTMLMediaElement;
   let skipSeconds = 1;
@@ -27,7 +30,11 @@
     preload="auto"
     src={videoSrc}
     controls
-  />
+  >
+    {#if subtitleSrc}
+      <track kind="subtitles" src={subtitleSrc} />
+    {/if}
+  </video>
 {/if}
 
 <style></style>

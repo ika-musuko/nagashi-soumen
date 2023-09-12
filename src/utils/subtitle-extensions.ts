@@ -1,18 +1,5 @@
-export const SUBTITLE_EXTENSIONS = new Set<string>([
-  "srt",
-  "ass",
-  "sub",
-  "vtt",
-  "idx",
-  "sub",
-  "pgs",
-  "ttml",
-  "dfxp",
-  "stl",
-  "rt",
-  "smi",
-  "subrip",
-  "json",
-  "lrc",
-  "ttaf",
-]);
+export const SUBTITLE_EXTENSIONS = new Set<string>(["vtt"]);
+
+// TODO: support more subtitle files
+// "srt",
+// "ass",

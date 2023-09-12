@@ -42,11 +42,9 @@
 </script>
 
 <main>
-  <!-- <input type="file" accept="video/*" bind:files multiple /> -->
   <input type="file" bind:files multiple />
   <br />
-  <!-- svelte-ignore a11y-media-has-caption -->
-  <VideoPlayer bind:this={videoPlayer} {videoSrc} />
+  <VideoPlayer bind:this={videoPlayer} bind:videoSrc bind:subtitleSrc />
   <p>{subtitleSrc ? subtitleSrc : ""}</p>
 </main>
 <svelte:window on:keydown={onKeyDown} />
