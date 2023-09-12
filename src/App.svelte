@@ -2,11 +2,13 @@
   import VideoPlayer from "./components/VideoPlayer.svelte";
   import { SUBTITLE_EXTENSIONS } from "./utils/subtitle-extensions";
   import { VIDEO_EXTENSIONS } from "./utils/video-extensions";
+  import { timeDisplay } from "./utils/utils";
 
   let files: FileList;
 
   let videoPlayer: VideoPlayer;
   let videoSrc: string;
+  let currentTime: number;
 
   let subtitleSrc: string;
 
@@ -44,8 +46,14 @@
 <main>
   <input type="file" bind:files multiple />
   <br />
-  <VideoPlayer bind:this={videoPlayer} bind:videoSrc bind:subtitleSrc />
+  <VideoPlayer
+    bind:this={videoPlayer}
+    bind:videoSrc
+    bind:subtitleSrc
+    bind:currentTime
+  />
   <p>{subtitleSrc ? subtitleSrc : ""}</p>
+  <p>{timeDisplay(currentTime)}</p>
 </main>
 <svelte:window on:keydown={onKeyDown} />
 
