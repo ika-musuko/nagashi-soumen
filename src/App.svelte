@@ -9,6 +9,8 @@
   let videoPlayer: VideoPlayer;
   let videoSrc: string;
   let currentTime: number;
+  let currentSub: string;
+  let lastSub: string = "";
 
   let subtitleSrc: string;
 
@@ -51,9 +53,11 @@
     bind:videoSrc
     bind:subtitleSrc
     bind:currentTime
+    bind:currentSub
+    bind:lastSub
   />
-  <p>{subtitleSrc ? subtitleSrc : ""}</p>
   <p>{timeDisplay(currentTime)}</p>
+  <p>{lastSub}</p>
 </main>
 <svelte:window on:keydown={onKeyDown} />
 

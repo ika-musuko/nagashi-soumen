@@ -1,7 +1,9 @@
 <script lang="ts">
   export let videoSrc: string;
   export let subtitleSrc: string;
-  export let currentTime: number = NaN;
+  export let currentTime: number = 0;
+  export let currentSub: string;
+  export let lastSub: string = "";
 
   export function rewind() {
     videoElement.currentTime -= skipSeconds;
@@ -25,6 +27,14 @@
 
   let videoElement: HTMLMediaElement;
   let skipSeconds = 1;
+
+  function getCurrentSub() {
+    const activeCue = videoElement.textTracks[0].activeCues[0];
+    if (activeCue === undefined || !(activeCue instanceof VTTCue)) {
+      return "";
+    }
+    return activeCue.text;
+  }
 </script>
 
 <!-- svelte-ignore a11y-media-has-caption -->
@@ -32,16 +42,29 @@
   <video
     id="video-player"
     bind:this={videoElement}
-    on:timeupdate={() => (currentTime = videoElement.currentTime)}
+    on:timeupdate={() => {
+      currentTime = videoElement.currentTime;
+    }}
     width="100%"
     height="auto"
     preload="auto"
     src={videoSrc}
   >
     {#if subtitleSrc}
-      <track id="subs" kind="subtitles" src={subtitleSrc} />
+      <track
+        id="subs"
+        kind="subtitles"
+        src={subtitleSrc}
+        on:cuechange={() => {
+          currentSub = getCurrentSub();
+          if (currentSub !== "") {
+            lastSub = currentSub;
+          }
+        }}
+      />
     {/if}
   </video>
+  <div />
 {/if}
 
 <style></style>
