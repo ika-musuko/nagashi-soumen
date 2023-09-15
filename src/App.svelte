@@ -8,11 +8,12 @@
 
   let videoPlayer: VideoPlayer;
   let videoSrc: string;
-  let currentTime: number;
-  let currentSub: string;
-  let lastSub: string = "";
-
   let subtitleSrc: string;
+
+  let currentTime: number;
+
+  let cues: TextTrackCueList;
+  let lastCueIndex: number;
 
   $: if (files) {
     for (const file of files) {
@@ -53,11 +54,16 @@
     bind:videoSrc
     bind:subtitleSrc
     bind:currentTime
-    bind:currentSub
-    bind:lastSub
+    bind:cues
+    bind:lastCueIndex
   />
   <p>{timeDisplay(currentTime)}</p>
-  <p>{lastSub}</p>
+  <p>last cue index: {lastCueIndex}</p>
+  <p>
+    last cue text: {cues && lastCueIndex && lastCueIndex > 0
+      ? cues[lastCueIndex].text
+      : ""}
+  </p>
 </main>
 <svelte:window on:keydown={onKeyDown} />
 

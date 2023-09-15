@@ -2,8 +2,9 @@
   export let videoSrc: string;
   export let subtitleSrc: string;
   export let currentTime: number = 0;
-  export let currentSub: string;
-  export let lastSub: string = "";
+
+  export let cues: TextTrackCueList;
+  export let lastCueIndex: number;
 
   export function rewind() {
     videoElement.currentTime -= skipSeconds;
@@ -19,21 +20,21 @@
 
   $: {
     if (videoElement) {
-      for (let textTrack of videoElement.textTracks) {
-        textTrack.mode = "showing";
-      }
+      let track = videoElement.textTracks[0];
+      track.mode = "showing";
+      cues = track.cues;
     }
   }
 
   let videoElement: HTMLMediaElement;
   let skipSeconds = 1;
 
-  function getCurrentSub() {
-    const activeCue = videoElement.textTracks[0].activeCues[0];
-    if (activeCue === undefined || !(activeCue instanceof VTTCue)) {
-      return "";
+  function getCurrentCueIndex(): number {
+    let currentCueIndex = -1;
+    for (const activeCue of videoElement.textTracks[0].activeCues) {
+      currentCueIndex = Number(activeCue.id) - 1;
     }
-    return activeCue.text;
+    return currentCueIndex;
   }
 </script>
 
@@ -56,9 +57,9 @@
         kind="subtitles"
         src={subtitleSrc}
         on:cuechange={() => {
-          currentSub = getCurrentSub();
-          if (currentSub !== "") {
-            lastSub = currentSub;
+          let currentCueIndex = getCurrentCueIndex();
+          if (currentCueIndex !== -1) {
+            lastCueIndex = currentCueIndex;
           }
         }}
       />
