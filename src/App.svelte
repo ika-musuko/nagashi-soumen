@@ -1,5 +1,6 @@
 <script lang="ts">
   import VideoPlayer from "./components/VideoPlayer.svelte";
+  import SubtitleViewer from "./components/SubtitleViewer.svelte";
   import { SUBTITLE_EXTENSIONS } from "./utils/subtitle-extensions";
   import { VIDEO_EXTENSIONS } from "./utils/video-extensions";
   import { timeDisplay } from "./utils/utils";
@@ -13,15 +14,17 @@
   let currentTime: number;
 
   let cues: TextTrackCueList;
-  let lastCueIndex: number;
+  let lastCueId: string = "";
 
-  $: if (files) {
-    for (const file of files) {
-      const ext = file.name.split(".").pop();
-      if (VIDEO_EXTENSIONS.has(ext)) {
-        videoSrc = URL.createObjectURL(file);
-      } else if (SUBTITLE_EXTENSIONS.has(ext)) {
-        subtitleSrc = URL.createObjectURL(file);
+  $: {
+    if (files) {
+      for (const file of files) {
+        const ext = file.name.split(".").pop();
+        if (VIDEO_EXTENSIONS.has(ext)) {
+          videoSrc = URL.createObjectURL(file);
+        } else if (SUBTITLE_EXTENSIONS.has(ext)) {
+          subtitleSrc = URL.createObjectURL(file);
+        }
       }
     }
   }
@@ -55,15 +58,16 @@
     bind:subtitleSrc
     bind:currentTime
     bind:cues
-    bind:lastCueIndex
+    bind:lastCueId
   />
   <p>{timeDisplay(currentTime)}</p>
-  <p>last cue index: {lastCueIndex}</p>
+  <p>last cue id: {lastCueId}</p>
   <p>
-    last cue text: {cues && lastCueIndex && lastCueIndex > 0
-      ? cues[lastCueIndex].text
+    last cue text: {cues && lastCueId && lastCueId !== ""
+      ? cues.getCueById(lastCueId).text
       : ""}
   </p>
+  <SubtitleViewer bind:cues bind:lastCueId />
 </main>
 <svelte:window on:keydown={onKeyDown} />
 

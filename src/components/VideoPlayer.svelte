@@ -4,7 +4,7 @@
   export let currentTime: number = 0;
 
   export let cues: TextTrackCueList;
-  export let lastCueIndex: number;
+  export let lastCueId: string;
 
   export function rewind() {
     videoElement.currentTime -= skipSeconds;
@@ -21,20 +21,22 @@
   $: {
     if (videoElement) {
       let track = videoElement.textTracks[0];
-      track.mode = "showing";
-      cues = track.cues;
+      if (track) {
+        track.mode = "showing";
+      }
     }
   }
 
   let videoElement: HTMLMediaElement;
+  let trackElement: HTMLTrackElement;
   let skipSeconds = 1;
 
-  function getCurrentCueIndex(): number {
-    let currentCueIndex = -1;
+  function getCurrentCueId(): string {
+    let currentCueId = "";
     for (const activeCue of videoElement.textTracks[0].activeCues) {
-      currentCueIndex = Number(activeCue.id) - 1;
+      currentCueId = activeCue.id;
     }
-    return currentCueIndex;
+    return currentCueId;
   }
 </script>
 
@@ -53,13 +55,19 @@
   >
     {#if subtitleSrc}
       <track
+        bind:this={trackElement}
         id="subs"
         kind="subtitles"
         src={subtitleSrc}
         on:cuechange={() => {
-          let currentCueIndex = getCurrentCueIndex();
-          if (currentCueIndex !== -1) {
-            lastCueIndex = currentCueIndex;
+          // TODO: find a better place to update the cues
+          // this is buggy and only works if the video file and subtitle file are simultaneously uploaded
+          let track = videoElement.textTracks[0];
+          cues = track.cues;
+
+          let currentCueId = getCurrentCueId();
+          if (currentCueId !== "") {
+            lastCueId = currentCueId;
           }
         }}
       />
