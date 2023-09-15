@@ -23,6 +23,7 @@
       let track = videoElement.textTracks[0];
       if (track) {
         track.mode = "showing";
+        cues = track.cues;
       }
     }
   }
@@ -60,11 +61,6 @@
         kind="subtitles"
         src={subtitleSrc}
         on:cuechange={() => {
-          // TODO: find a better place to update the cues
-          // this is buggy and only works if the video file and subtitle file are simultaneously uploaded
-          let track = videoElement.textTracks[0];
-          cues = track.cues;
-
           let currentCueId = getCurrentCueId();
           if (currentCueId !== "") {
             lastCueId = currentCueId;

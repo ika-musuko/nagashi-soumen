@@ -5,7 +5,7 @@
   export let lastCueId: string;
 
   $: {
-    console.log("lastCueId: " + lastCueId);
+    cues = cues;
     if (lastCueId !== undefined && lastCueId !== "") {
       let currentSubtitleElement = document.getElementById(
         `subtitle-${lastCueId}`
@@ -31,7 +31,7 @@
 
 <style>
   #subtitle-list {
-    max-height: 300px;
+    max-height: 100%;
     overflow: auto;
     list-style: none;
   }
