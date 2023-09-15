@@ -5,6 +5,7 @@
   import { SUBTITLE_EXTENSIONS } from "./utils/subtitle-extensions";
   import { VIDEO_EXTENSIONS } from "./utils/video-extensions";
   import { timeDisplay } from "./utils/utils";
+  import type { ComponentEvents } from "svelte";
 
   let files: FileList;
 
@@ -34,9 +35,17 @@
 
   function saveCurrentSubtitle() {
     if (cues && lastCueId && lastCueId !== "") {
-      let currentSub = cues.getCueById(lastCueId).text;
+      let currentSub = (cues.getCueById(lastCueId) as VTTCue).text;
       savedSubtitles.saveSubtitle(currentSub);
     }
+  }
+
+  function handleSubtitleSeek(event: ComponentEvents<SubtitleViewer>["seek"]) {
+    if (!videoPlayer) {
+      return;
+    }
+
+    videoPlayer.seek(event.detail.time);
   }
 
   function onKeyDown(e: KeyboardEvent) {
@@ -79,17 +88,23 @@
       />
     </span>
 
-    <span id="sidebar">
-      <span id="controls">
-        <p>{timeDisplay(currentTime)}</p>
+    {#if videoPlayer}
+      <span id="sidebar">
+        <span id="controls">
+          <p>{timeDisplay(currentTime)}</p>
+        </span>
+        <span id="subtitle-viewer">
+          <SubtitleViewer
+            bind:cues
+            bind:lastCueId
+            on:seek={handleSubtitleSeek}
+          />
+        </span>
+        <span id="saved-subtitles"
+          ><SavedSubtitles bind:this={savedSubtitles} />
+        </span>
       </span>
-      <span id="subtitle-viewer"
-        ><SubtitleViewer bind:cues bind:lastCueId /></span
-      >
-      <span id="saved-subtitles"
-        ><SavedSubtitles bind:this={savedSubtitles} /></span
-      >
-    </span>
+    {/if}
   </span>
 </main>
 <svelte:window on:keydown={onKeyDown} />
@@ -117,7 +132,7 @@
   }
 
   #subtitle-viewer {
-    max-height: 50%;
+    height: 50%;
   }
 
   #saved-subtitles {

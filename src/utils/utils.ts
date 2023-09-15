@@ -6,12 +6,18 @@ export function timeDisplay(seconds: number): string {
     (remainingSeconds - Math.floor(remainingSeconds)) * 1000
   );
 
-  const formattedHours = hours.toString().padStart(2, "0");
-  const formattedMinutes = minutes.toString().padStart(2, "0");
-  const formattedSeconds = Math.floor(remainingSeconds)
-    .toString()
-    .padStart(2, "0");
-  const formattedMilliseconds = milliseconds.toString().padStart(3, "0");
+  const hh = hours.toString().padStart(2, "0");
+  const mm = minutes.toString().padStart(2, "0");
+  const ss = Math.floor(remainingSeconds).toString().padStart(2, "0");
+  const ms = milliseconds.toString().padStart(3, "0");
 
-  return `${formattedHours}:${formattedMinutes}:${formattedSeconds}.${formattedMilliseconds}`;
+  return `${hh}:${mm}:${ss}.${ms}`;
+}
+
+export function dispatchWithArgs(
+  dispatch: (event: string, ...args: any[]) => boolean,
+  eventKey: string,
+  args: object
+) {
+  dispatch(eventKey, args);
 }

@@ -11,7 +11,10 @@
   <h3>Saved Subtitles</h3>
   <ul id="subtitle-list">
     {#each Array.from(savedSubtitles) as sub}
-      <li>{sub}</li>
+      <li>
+        <p>{sub}</p>
+        <button>X</button>
+      </li>
     {/each}
   </ul>
 </div>

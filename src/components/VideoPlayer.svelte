@@ -18,6 +18,10 @@
     videoElement.paused ? videoElement.play() : videoElement.pause();
   }
 
+  export function seek(time: number) {
+    videoElement.currentTime = time;
+  }
+
   $: {
     if (videoElement) {
       let track = videoElement.textTracks[0];
