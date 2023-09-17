@@ -8,6 +8,7 @@
   import { VIDEO_EXTENSIONS } from "./utils/video-extensions";
   import type { ComponentEvents } from "svelte";
   import { VTTCueMap } from "./utils/VTTCueMap";
+  import toWebVTT from "srt-webvtt";
 
   let DEBUG = false;
 
@@ -36,8 +37,9 @@
 
   let savedSubtitles: SavedSubtitles;
 
-  function fileUpload(event) {
-    const files: FileList = event.target.files;
+  async function fileUpload(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const files: FileList = input.files;
     if (!files) {
       return;
     }
@@ -53,12 +55,23 @@
       if (VIDEO_EXTENSIONS.has(ext)) {
         videoSrcBuffer = URL.createObjectURL(file);
       } else if (SUBTITLE_EXTENSIONS.has(ext)) {
-        subtitleSrcBuffer = URL.createObjectURL(file);
+        subtitleSrcBuffer = await processSubtitleUpload(file, ext);
       }
     }
 
     if (videoSrcBuffer) videoSrc = videoSrcBuffer;
     if (subtitleSrcBuffer) subtitleSrc = subtitleSrcBuffer;
+  }
+
+  async function processSubtitleUpload(
+    file: File,
+    ext: string
+  ): Promise<string> {
+    if (ext === "srt") {
+      const convertedURL = await toWebVTT(file);
+      return convertedURL;
+    }
+    return URL.createObjectURL(file);
   }
 
   function saveCurrentSubtitle() {
