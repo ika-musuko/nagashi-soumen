@@ -40,7 +40,10 @@
           which does not have a text property. but actually cue 
           is a VTTCue so the text property exists. 
         -->
-        {timeDisplay(cue.startTime)}: {cue.text} 
+        <span style="user-select: none; font-size: small;">
+          {timeDisplay(cue.startTime)}:&nbsp;
+        </span>
+        {cue.text} 
       </li>
     {/each}
   </ul>

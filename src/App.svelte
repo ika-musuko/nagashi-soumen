@@ -62,7 +62,7 @@
 
   function saveCurrentSubtitle() {
     if (cues && lastCueId && lastCueId !== "") {
-      let currentSub = (cues.getCueById(lastCueId) as VTTCue).text;
+      let currentSub = cues.getCueById(lastCueId) as VTTCue;
       savedSubtitles.saveSubtitle(currentSub);
     }
   }

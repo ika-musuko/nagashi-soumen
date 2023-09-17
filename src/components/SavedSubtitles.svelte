@@ -1,19 +1,26 @@
 <script lang="ts">
-  export function saveSubtitle(sub: string) {
+  import { timeDisplay } from "../utils/utils";
+
+  export function saveSubtitle(sub: VTTCue) {
     savedSubtitles.add(sub);
     savedSubtitles = savedSubtitles; // to notify svelte of the update
   }
 
-  let savedSubtitles = new Set<String>();
+  let savedSubtitles = new Set<VTTCue>();
 </script>
 
 <div>
   <h3>Saved Subtitles</h3>
   <ul id="subtitle-list">
     {#each Array.from(savedSubtitles) as sub}
-      <li>
-        <p>{sub}</p>
-        <button>X</button>
+      <li style="display: flex; flex-direction: row">
+        <p>
+          <span style="user-select: none; font-size: small;">
+            {timeDisplay(sub.startTime)}:&nbsp;
+          </span>
+          {sub.text}
+        </p>
+        <!--<button class="delete-sub-button">X</button>-->
       </li>
     {/each}
   </ul>
@@ -39,5 +46,10 @@
 
   li:focus {
     color: #aaff88;
+  }
+
+  .delete-sub-button {
+    user-select: none;
+    padding: 0;
   }
 </style>
