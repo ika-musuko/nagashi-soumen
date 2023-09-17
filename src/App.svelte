@@ -135,7 +135,10 @@
           />
         </span>
         <span id="saved-subtitles"
-          ><SavedSubtitles bind:this={savedSubtitles} />
+          ><SavedSubtitles
+            bind:this={savedSubtitles}
+            on:seek={handleSubtitleSeek}
+          />
         </span>
       {/if}
     </span>
@@ -175,10 +178,10 @@
   }
 
   #subtitle-viewer {
-    height: 40%;
+    height: 25%;
   }
 
   #saved-subtitles {
-    max-height: 40%;
+    max-height: 55%;
   }
 </style>
