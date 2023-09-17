@@ -7,7 +7,7 @@
   import { timeDisplay } from "./utils/utils";
   import type { ComponentEvents } from "svelte";
 
-  let files: FileList;
+  let DEBUG = true;
 
   let videoPlayer: VideoPlayer;
   let videoSrc: string;
@@ -20,17 +20,28 @@
 
   let savedSubtitles: SavedSubtitles;
 
-  $: {
-    if (files) {
-      for (const file of files) {
-        const ext = file.name.split(".").pop();
-        if (VIDEO_EXTENSIONS.has(ext)) {
-          videoSrc = URL.createObjectURL(file);
-        } else if (SUBTITLE_EXTENSIONS.has(ext)) {
-          subtitleSrc = URL.createObjectURL(file);
-        }
+  function fileUpload(event) {
+    const files: FileList = event.target.files;
+    if (!files) {
+      return;
+    }
+
+    // store values from files in buffers
+    // to prevent unnecessary reactivity calls
+    let videoSrcBuffer: string = null;
+    let subtitleSrcBuffer: string = null;
+
+    for (const file of files) {
+      const ext = file.name.split(".").pop();
+      if (VIDEO_EXTENSIONS.has(ext)) {
+        videoSrcBuffer = URL.createObjectURL(file);
+      } else if (SUBTITLE_EXTENSIONS.has(ext)) {
+        subtitleSrcBuffer = URL.createObjectURL(file);
       }
     }
+
+    if (videoSrcBuffer) videoSrc = videoSrcBuffer;
+    if (subtitleSrcBuffer) subtitleSrc = subtitleSrcBuffer;
   }
 
   function saveCurrentSubtitle() {
@@ -74,7 +85,7 @@
 </script>
 
 <main>
-  <input type="file" bind:files multiple />
+  <input type="file" multiple on:change|preventDefault={fileUpload} />
   <br />
   <span id="main-container">
     <span id="video-player">
@@ -88,8 +99,14 @@
       />
     </span>
 
-    {#if videoPlayer}
-      <span id="sidebar">
+    <span id="sidebar">
+      {#if DEBUG}
+        <span id="debug-area">
+          <p class="debug-text">videoSrc: {videoSrc}</p>
+          <p class="debug-text">subtitleSrc: {subtitleSrc}</p>
+        </span>
+      {/if}
+      {#if videoPlayer}
         <span id="controls">
           <p>{timeDisplay(currentTime)}</p>
         </span>
@@ -103,8 +120,8 @@
         <span id="saved-subtitles"
           ><SavedSubtitles bind:this={savedSubtitles} />
         </span>
-      </span>
-    {/if}
+      {/if}
+    </span>
   </span>
 </main>
 <svelte:window on:keydown={onKeyDown} />
@@ -127,12 +144,21 @@
     width: 20vw;
   }
 
+  #debug-area {
+    max-height: 10%;
+    overflow: auto;
+  }
+
+  .debug-text {
+    font-size: xx-small;
+  }
+
   #controls {
     max-height: 10%;
   }
 
   #subtitle-viewer {
-    height: 50%;
+    height: 40%;
   }
 
   #saved-subtitles {

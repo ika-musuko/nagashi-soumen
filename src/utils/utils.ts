@@ -13,11 +13,3 @@ export function timeDisplay(seconds: number): string {
 
   return `${hh}:${mm}:${ss}.${ms}`;
 }
-
-export function dispatchWithArgs(
-  dispatch: (event: string, ...args: any[]) => boolean,
-  eventKey: string,
-  args: object
-) {
-  dispatch(eventKey, args);
-}

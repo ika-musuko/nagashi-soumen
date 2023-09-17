@@ -23,13 +23,19 @@
   }
 
   $: {
-    if (videoElement) {
-      let track = videoElement.textTracks[0];
-      if (track) {
-        track.mode = "showing";
-        cues = track.cues;
-      }
+    if (subtitleSrc) {
+      updateTracks();
     }
+  }
+
+  function updateTracks() {
+    if (!videoElement) return;
+
+    let track = videoElement.textTracks[0];
+    if (!track) return;
+
+    track.mode = "showing";
+    cues = track.cues;
   }
 
   let videoElement: HTMLMediaElement;
@@ -46,34 +52,29 @@
 </script>
 
 <!-- svelte-ignore a11y-media-has-caption -->
-{#if videoSrc}
-  <video
-    id="video-player"
-    bind:this={videoElement}
-    on:timeupdate={() => {
-      currentTime = videoElement.currentTime;
+<video
+  id="video-player"
+  bind:this={videoElement}
+  on:timeupdate={() => {
+    currentTime = videoElement.currentTime;
+  }}
+  width="100%"
+  height="auto"
+  preload="auto"
+  src={videoSrc ? videoSrc : ""}
+>
+  <track
+    bind:this={trackElement}
+    id="subs"
+    kind="subtitles"
+    src={subtitleSrc ? subtitleSrc : ""}
+    on:cuechange={() => {
+      let currentCueId = getCurrentCueId();
+      if (currentCueId !== "") {
+        lastCueId = currentCueId;
+      }
     }}
-    width="100%"
-    height="auto"
-    preload="auto"
-    src={videoSrc}
-  >
-    {#if subtitleSrc}
-      <track
-        bind:this={trackElement}
-        id="subs"
-        kind="subtitles"
-        src={subtitleSrc}
-        on:cuechange={() => {
-          let currentCueId = getCurrentCueId();
-          if (currentCueId !== "") {
-            lastCueId = currentCueId;
-          }
-        }}
-      />
-    {/if}
-  </video>
-  <div />
-{/if}
+  />
+</video>
 
 <style></style>
