@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { timeDisplay } from "../utils/utils";
+  import { timeDisplay, floatEquals } from "../utils/utils";
 
   export let currentTime: number;
   export let subtitleOffset: number;
@@ -11,12 +11,27 @@
     if (isNaN(dataFloat)) return;
 
     subtitleOffset = dataFloat;
+
     input.value = dataFloat.toFixed(2);
+    if (floatEquals(subtitleOffset, 0.0)) {
+      subtitleOffsetSign = "⏺";
+    } else {
+      if (subtitleOffset > 0) {
+        subtitleOffsetSign = "➡️";
+      } else {
+        subtitleOffsetSign = "⬅️";
+      }
+    }
+
+    console.log("subtitleOffsetSign: " + subtitleOffsetSign);
   }
+
+  let subtitleOffsetSign: string = "⏺";
 </script>
 
 <div id="container">
   <p>{timeDisplay(currentTime)}</p>
+  <p>{subtitleOffsetSign}</p>
   <input
     id="subtitle-offset"
     type="number"

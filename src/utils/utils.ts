@@ -13,3 +13,7 @@ export function timeDisplay(seconds: number): string {
 
   return `${hh}:${mm}:${ss}.${ms}`;
 }
+
+export function floatEquals(a: number, b: number, epsilon: number = 0.000001): boolean {
+  return Math.abs(a - b) < epsilon;
+}
