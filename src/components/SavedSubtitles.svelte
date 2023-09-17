@@ -5,6 +5,11 @@
   export function saveSubtitle(sub: VTTCue) {
     savedSubtitles.add(sub);
     savedSubtitles = savedSubtitles; // to notify svelte of the update
+
+    savedSubtitlesElement.scroll({
+      top: savedSubtitlesElement.scrollHeight,
+      behavior: "instant",
+    });
   }
 
   const dispatch = createEventDispatcher();
@@ -14,11 +19,13 @@
   }
 
   let savedSubtitles = new Set<VTTCue>();
+
+  let savedSubtitlesElement: HTMLUListElement;
 </script>
 
 <div>
   <h3>Saved Subtitles</h3>
-  <ul id="subtitle-list">
+  <ul id="subtitle-list" bind:this={savedSubtitlesElement}>
     {#each Array.from(savedSubtitles) as sub}
       <li style="display: flex; flex-direction: row">
         <!-- svelte-ignore a11y-click-events-have-key-events -->
