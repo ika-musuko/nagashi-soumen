@@ -7,6 +7,7 @@
   import { SUBTITLE_EXTENSIONS } from "./utils/subtitle-extensions";
   import { VIDEO_EXTENSIONS } from "./utils/video-extensions";
   import type { ComponentEvents } from "svelte";
+  import { VTTCueMap } from "./utils/VTTCueMap";
 
   let DEBUG = true;
 
@@ -19,8 +20,18 @@
   $: subtitleOffset, retimeCues();
 
   let cues: TextTrackCueList;
+  let originalCues: VTTCueMap = new VTTCueMap();
   let lastCueId: string = "";
-  function retimeCues() {}
+  function retimeCues() {
+    if (!cues || !isFinite(subtitleOffset)) return;
+
+    for (let cue of cues) {
+      const originalCue = originalCues.get(cue.id);
+      if (!originalCue) continue;
+      cue.startTime = originalCue.startTime + subtitleOffset;
+      cue.endTime = originalCue.endTime + subtitleOffset;
+    }
+  }
 
   let savedSubtitles: SavedSubtitles;
 
@@ -100,6 +111,7 @@
         bind:subtitleSrc
         bind:currentTime
         bind:cues
+        bind:originalCues
         bind:lastCueId
       />
     </span>

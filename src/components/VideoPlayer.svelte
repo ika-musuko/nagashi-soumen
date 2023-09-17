@@ -1,9 +1,12 @@
 <script lang="ts">
+  import type { VTTCueMap } from "../utils/VTTCueMap";
+
   export let videoSrc: string;
   export let subtitleSrc: string;
   export let currentTime: number = 0;
 
   export let cues: TextTrackCueList;
+  export let originalCues: VTTCueMap;
   export let lastCueId: string;
 
   export function rewind() {
@@ -68,6 +71,9 @@
     id="subs"
     kind="subtitles"
     src={subtitleSrc ? subtitleSrc : ""}
+    on:load={() => {
+      originalCues.setCues(cues);
+    }}
     on:cuechange={() => {
       let currentCueId = getCurrentCueId();
       if (currentCueId !== "") {
