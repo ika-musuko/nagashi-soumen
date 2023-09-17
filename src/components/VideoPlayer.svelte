@@ -95,4 +95,8 @@
   />
 </video>
 
-<style></style>
+<style>
+  #video-player::cue {
+    display: none;
+  }
+</style>

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { timeDisplay } from "../utils/utils";
+  import SubtitleItem from "./SubtitleItem.svelte";
 
   export function saveSubtitle(sub: VTTCue) {
     savedSubtitles.add(sub);
@@ -24,17 +25,17 @@
 </script>
 
 <div>
-  <h3>Saved Subtitles</h3>
+  <div style="font-size: large; font-weight: bold">Saved Subtitles</div>
   <ul id="subtitle-list" bind:this={savedSubtitlesElement}>
     {#each Array.from(savedSubtitles) as sub}
       <li style="display: flex; flex-direction: row">
         <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <p on:click={() => handleSeek(sub.startTime)}>
-          <span style="user-select: none; font-size: small;">
-            {timeDisplay(sub.startTime)}:&nbsp;
-          </span>
-          {sub.text}
-        </p>
+        <SubtitleItem
+          bind:time={sub.startTime}
+          bind:text={sub.text}
+          color={"#88aaff"}
+          on:click={() => handleSeek(sub.startTime)}
+        />
         <!--<button class="delete-sub-button">X</button>-->
       </li>
     {/each}
@@ -55,12 +56,7 @@
 
   li {
     cursor: pointer;
-    color: #88aaff;
     margin: 10px 0;
-  }
-
-  li:focus {
-    color: #aaff88;
   }
 
   /*

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { timeDisplay } from "../utils/utils";
+  import SubtitleItem from "./SubtitleItem.svelte";
 
   export let cues: TextTrackCueList;
   export let lastCueId: string;
@@ -40,10 +41,7 @@
           which does not have a text property. but actually cue 
           is a VTTCue so the text property exists. 
         -->
-        <span style="user-select: none; font-size: small;">
-          {timeDisplay(cue.startTime)}:&nbsp;
-        </span>
-        {cue.text} 
+        <SubtitleItem bind:time={cue.startTime} bind:text={cue.text} />
       </li>
     {/each}
   </ul>
