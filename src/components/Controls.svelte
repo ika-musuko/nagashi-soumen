@@ -2,6 +2,8 @@
   import { timeDisplay, floatEquals } from "../utils/utils";
 
   export let currentTime: number;
+  export let endTime: number;
+
   export let subtitleOffset: number;
   function formatSubtitleOffset(event: Event) {
     let input = event.target as HTMLInputElement;
@@ -30,15 +32,22 @@
 </script>
 
 <div id="container">
-  <p>{timeDisplay(currentTime)}</p>
-  <p>{subtitleOffsetSign}</p>
-  <input
-    id="subtitle-offset"
-    type="number"
-    step="0.05"
-    value={subtitleOffset.toFixed(2)}
-    on:change={formatSubtitleOffset}
-  />
+  <div id="time-display">
+    {!isNaN(endTime)
+      ? `${timeDisplay(currentTime, false)} / ${timeDisplay(endTime, false)}`
+      : "no video loaded"}
+  </div>
+  <div id="subtitle-offset-container">
+    <p style="width: 10%;">{subtitleOffsetSign}</p>
+    <input
+      id="subtitle-offset"
+      style="width: 90%"
+      type="number"
+      step="0.05"
+      value={subtitleOffset.toFixed(2)}
+      on:change={formatSubtitleOffset}
+    />
+  </div>
 </div>
 
 <style>
@@ -47,6 +56,15 @@
   }
 
   #container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #time-display {
+    font-size: large;
+  }
+
+  #subtitle-offset-container {
     display: flex;
     flex-direction: row;
     justify-content: space-around;

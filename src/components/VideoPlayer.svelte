@@ -3,7 +3,8 @@
 
   export let videoSrc: string;
   export let subtitleSrc: string;
-  export let currentTime: number = 0;
+  export let currentTime: number;
+  export let endTime: number;
 
   export let cues: TextTrackCueList;
   export let originalCues: VTTCueMap;
@@ -23,6 +24,14 @@
 
   export function seek(time: number) {
     videoElement.currentTime = time;
+  }
+
+  export function fullscreen() {
+    if (document.fullscreenElement === null) {
+      videoElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
   }
 
   $: {
@@ -58,6 +67,9 @@
 <video
   id="video-player"
   bind:this={videoElement}
+  on:durationchange={() => {
+    endTime = videoElement.duration;
+  }}
   on:timeupdate={() => {
     currentTime = videoElement.currentTime;
   }}

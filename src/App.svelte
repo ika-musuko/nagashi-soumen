@@ -9,13 +9,14 @@
   import type { ComponentEvents } from "svelte";
   import { VTTCueMap } from "./utils/VTTCueMap";
 
-  let DEBUG = true;
+  let DEBUG = false;
 
   let videoPlayer: VideoPlayer;
   let videoSrc: string;
   let subtitleSrc: string;
 
   let currentTime: number;
+  let endTime: number;
   let subtitleOffset: number = 0.0;
   $: subtitleOffset, retimeCues();
 
@@ -75,25 +76,37 @@
     videoPlayer.seek(event.detail.time);
   }
 
-  function onKeyDown(e: KeyboardEvent) {
-    switch (e.key) {
+  function onKeyDown(event: KeyboardEvent) {
+    switch (event.key) {
+      case "d":
+        event.preventDefault();
+        DEBUG = !DEBUG;
+        break;
+
+      // video
       case "ArrowLeft":
-        e.preventDefault();
+        event.preventDefault();
         videoPlayer.rewind();
         break;
 
       case "ArrowRight":
-        e.preventDefault();
+        event.preventDefault();
         videoPlayer.fastforward();
         break;
 
       case " ":
-        e.preventDefault();
+        event.preventDefault();
         videoPlayer.playpause();
         break;
 
+      case "f":
+        event.preventDefault();
+        videoPlayer.fullscreen();
+        break;
+
+      // subtitles
       case "ArrowDown":
-        e.preventDefault();
+        event.preventDefault();
         saveCurrentSubtitle();
         break;
     }
@@ -110,6 +123,7 @@
         bind:videoSrc
         bind:subtitleSrc
         bind:currentTime
+        bind:endTime
         bind:cues
         bind:originalCues
         bind:lastCueId
@@ -125,7 +139,7 @@
       {/if}
       {#if videoPlayer}
         <span id="controls">
-          <Controls bind:currentTime bind:subtitleOffset />
+          <Controls bind:currentTime bind:endTime bind:subtitleOffset />
         </span>
         <span id="subtitle-viewer">
           <SubtitleViewer
