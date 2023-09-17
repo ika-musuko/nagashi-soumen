@@ -1,10 +1,11 @@
 <script lang="ts">
   import VideoPlayer from "./components/VideoPlayer.svelte";
+  import Controls from "./components/Controls.svelte";
   import SubtitleViewer from "./components/SubtitleViewer.svelte";
   import SavedSubtitles from "./components/SavedSubtitles.svelte";
+
   import { SUBTITLE_EXTENSIONS } from "./utils/subtitle-extensions";
   import { VIDEO_EXTENSIONS } from "./utils/video-extensions";
-  import { timeDisplay } from "./utils/utils";
   import type { ComponentEvents } from "svelte";
 
   let DEBUG = true;
@@ -14,9 +15,12 @@
   let subtitleSrc: string;
 
   let currentTime: number;
+  let subtitleOffset: number = 0.0;
+  $: subtitleOffset, retimeCues();
 
   let cues: TextTrackCueList;
   let lastCueId: string = "";
+  function retimeCues() {}
 
   let savedSubtitles: SavedSubtitles;
 
@@ -28,6 +32,7 @@
 
     // store values from files in buffers
     // to prevent unnecessary reactivity calls
+    // if these values are still null
     let videoSrcBuffer: string = null;
     let subtitleSrcBuffer: string = null;
 
@@ -108,7 +113,7 @@
       {/if}
       {#if videoPlayer}
         <span id="controls">
-          <p>{timeDisplay(currentTime)}</p>
+          <Controls bind:currentTime bind:subtitleOffset />
         </span>
         <span id="subtitle-viewer">
           <SubtitleViewer

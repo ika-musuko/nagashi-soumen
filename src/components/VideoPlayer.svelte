@@ -24,11 +24,11 @@
 
   $: {
     if (subtitleSrc) {
-      updateTracks();
+      updateCues();
     }
   }
 
-  function updateTracks() {
+  function updateCues() {
     if (!videoElement) return;
 
     let track = videoElement.textTracks[0];

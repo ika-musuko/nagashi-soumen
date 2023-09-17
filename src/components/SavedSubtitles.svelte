@@ -33,11 +33,11 @@
 
   li {
     cursor: pointer;
-    color: cornflowerblue;
+    color: #88aaff;
     margin: 10px 0;
   }
 
   li:focus {
-    color: greenyellow;
+    color: #aaff88;
   }
 </style>
