@@ -24,17 +24,17 @@
 </script>
 
 <div>
-  <h3>Saved Subtitles</h3>
+  <h3 id="title">Saved Subtitles</h3>
   <ul id="subtitle-list" bind:this={savedSubtitlesElement}>
     {#each Array.from(savedSubtitles) as sub}
       <li style="display: flex; flex-direction: row">
         <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <p on:click={() => handleSeek(sub.startTime)}>
+        <span on:click={() => handleSeek(sub.startTime)}>
           <span style="user-select: none; font-size: small;">
             {timeDisplay(sub.startTime)}:&nbsp;
           </span>
-          {sub.text}
-        </p>
+          <span>{sub.text}</span>
+        </span>
         <!--<button class="delete-sub-button">X</button>-->
       </li>
     {/each}
@@ -46,6 +46,11 @@
     max-height: 100%;
     display: flex;
     flex-direction: column;
+  }
+
+  #title {
+    padding: 0px;
+    margin: 0px;
   }
 
   ul {

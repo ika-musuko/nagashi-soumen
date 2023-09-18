@@ -128,6 +128,7 @@
     <span id="video-player">
       <VideoPlayer
         bind:this={videoPlayer}
+        bind:DEBUG
         bind:videoSrc
         bind:currentTime
         bind:endTime
@@ -153,6 +154,7 @@
             on:seek={handleSubtitleSeek}
           />
         </span>
+        <br />
         <span id="saved-subtitles"
           ><SavedSubtitles
             bind:this={savedSubtitles}

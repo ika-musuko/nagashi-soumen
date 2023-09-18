@@ -19,9 +19,9 @@
       subtitleOffsetSign = "⏺";
     } else {
       if (subtitleOffset > 0) {
-        subtitleOffsetSign = "➡️";
+        subtitleOffsetSign = "→";
       } else {
-        subtitleOffsetSign = "⬅️";
+        subtitleOffsetSign = "←";
       }
     }
 
@@ -38,10 +38,9 @@
       : "no video loaded"}
   </div>
   <div id="subtitle-offset-container">
-    <p style="width: 10%;">{subtitleOffsetSign}</p>
+    <span id="subtitle-offset-sign">{subtitleOffsetSign}</span>
     <input
       id="subtitle-offset"
-      style="width: 90%"
       type="number"
       step="0.05"
       value={subtitleOffset.toFixed(2)}
@@ -62,6 +61,7 @@
 
   #time-display {
     font-size: large;
+    text-align: center;
   }
 
   #subtitle-offset-container {
@@ -71,8 +71,21 @@
     align-items: center;
   }
 
+  #subtitle-offset-sign {
+    font-size: 3vh;
+  }
+
   #subtitle-offset {
-    width: 6vw;
+    background-color: black;
+    width: 10vw;
     height: 3vw;
+    text-align: center;
+    border: 1px dashed;
+    border-radius: 4px;
+    border-color: #e5e5ff;
+  }
+
+  #subtitle-offset:focus {
+    outline: none;
   }
 </style>
