@@ -23,6 +23,7 @@
   let endTime: number;
 
   let subtitleOffset: number = 0.0;
+  $: subtitleOffset, $subtitles.retime(subtitleOffset, currentTime);
 
   let savedSubtitles: SavedSubtitles;
 
