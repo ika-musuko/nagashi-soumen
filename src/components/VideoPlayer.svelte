@@ -27,33 +27,65 @@
 
   export function fullscreen() {
     if (document.fullscreenElement === null) {
-      videoElement.requestFullscreen();
+      videoContainer.requestFullscreen();
     } else {
       document.exitFullscreen();
     }
   }
 
+  let videoContainer: HTMLElement;
   let videoElement: HTMLMediaElement;
   let skipSeconds = 1;
 </script>
 
 <!-- svelte-ignore a11y-media-has-caption -->
-<video
-  id="video-player"
-  bind:this={videoElement}
-  on:durationchange={() => {
-    endTime = videoElement.duration;
-  }}
-  on:timeupdate={() => {
-    currentTime = videoElement.currentTime;
-  }}
-  width="100%"
-  height="auto"
-  preload="auto"
-  src={videoSrc ? videoSrc : ""}
-/>
-{#each filterActive(cues, activeCueIds) as cue}
-  <p>{cue.text}</p>
-{/each}
+<div id="video-container" bind:this={videoContainer}>
+  <video
+    id="video-player"
+    bind:this={videoElement}
+    on:durationchange={() => {
+      endTime = videoElement.duration;
+    }}
+    on:timeupdate={() => {
+      currentTime = videoElement.currentTime;
+    }}
+    preload="auto"
+    src={videoSrc ? videoSrc : ""}
+  />
+  <div id="cue-container">
+    {#each filterActive(cues, activeCueIds) as cue}
+      <div class="cue-text" style="font-size: 2vw;">{cue.text}</div>
+    {/each}
+  </div>
+</div>
 
-<style></style>
+<style>
+  #video-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  #video-player {
+    width: 100%;
+    height: auto;
+  }
+
+  #cue-container {
+    position: absolute;
+    bottom: 3vh;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cue-text {
+    text-align: center;
+    background-color: #000000;
+    color: #e5e8ff;
+    opacity: 0.8;
+  }
+</style>
