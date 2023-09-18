@@ -16,17 +16,13 @@
   let videoPlayer: VideoPlayer;
   let videoSrc: string;
 
-  let currentTime: number;
-  $: currentTime, subtitles.update(currentTime);
-  let endTime: number;
-  let subtitleOffset: number = 0.0;
-  $: subtitleOffset, subtitles.retime(subtitleOffset, currentTime);
-
   let subtitles: Subtitles = new Subtitles();
-  let cues = new VTTCueMap();
-  $: subtitles, (cues = subtitles.cues);
-  let activeCueIds = new Set<string>();
-  $: subtitles, (activeCueIds = subtitles.activeCueIds);
+
+  let currentTime: number;
+  $: currentTime, $subtitles.updateTime(currentTime);
+  let endTime: number;
+
+  let subtitleOffset: number = 0.0;
 
   let savedSubtitles: SavedSubtitles;
 
@@ -57,7 +53,7 @@
     }
 
     if (subtitleURL) {
-      subtitles = new Subtitles(subtitleURL);
+      $subtitles.constructFromURL(subtitleURL);
     }
 
     // ===
@@ -82,7 +78,7 @@
   }
 
   function saveCurrentSubtitles() {
-    for (const cue of filterActive(subtitles.cues, subtitles.activeCueIds)) {
+    for (const cue of filterActive($subtitles.cues, $subtitles.activeCueIds)) {
       savedSubtitles.saveSubtitle(cue);
     }
   }
@@ -134,8 +130,8 @@
         bind:videoSrc
         bind:currentTime
         bind:endTime
-        bind:cues
-        bind:activeCueIds
+        bind:cues={$subtitles.cues}
+        bind:activeCueIds={$subtitles.activeCueIds}
       />
     </span>
 
@@ -151,8 +147,8 @@
         </span>
         <span id="subtitle-viewer">
           <SubtitleViewer
-            bind:cues
-            bind:activeCueIds
+            bind:cues={$subtitles.cues}
+            bind:activeCueIds={$subtitles.activeCueIds}
             on:seek={handleSubtitleSeek}
           />
         </span>

@@ -33,11 +33,6 @@
     }
   }
 
-  $: {
-    console.log("video player react!");
-    console.log(activeCueIds);
-  }
-
   let videoElement: HTMLMediaElement;
   let skipSeconds = 1;
 </script>
