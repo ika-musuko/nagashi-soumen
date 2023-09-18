@@ -1,14 +1,13 @@
 <script lang="ts">
-  import type { VTTCueMap } from "../utils/VTTCueMap";
+  import { filterActive } from "../subtitles/Subtitles";
+  import type { VTTCueMap } from "../subtitles/VTTCueMap";
 
   export let videoSrc: string;
-  export let subtitleSrc: string;
   export let currentTime: number;
   export let endTime: number;
 
-  export let cues: TextTrackCueList;
-  export let originalCues: VTTCueMap;
-  export let lastCueId: string;
+  export let cues: VTTCueMap;
+  export let activeCueIds: Set<string>;
 
   export function rewind() {
     videoElement.currentTime -= skipSeconds;
@@ -35,32 +34,12 @@
   }
 
   $: {
-    if (subtitleSrc) {
-      updateCues();
-    }
-  }
-
-  function updateCues() {
-    if (!videoElement) return;
-
-    let track = videoElement.textTracks[0];
-    if (!track) return;
-
-    track.mode = "showing";
-    cues = track.cues;
+    console.log("video player react!");
+    console.log(activeCueIds);
   }
 
   let videoElement: HTMLMediaElement;
-  let trackElement: HTMLTrackElement;
   let skipSeconds = 1;
-
-  function getCurrentCueId(): string {
-    let currentCueId = "";
-    for (const activeCue of videoElement.textTracks[0].activeCues) {
-      currentCueId = activeCue.id;
-    }
-    return currentCueId;
-  }
 </script>
 
 <!-- svelte-ignore a11y-media-has-caption -->
@@ -77,22 +56,9 @@
   height="auto"
   preload="auto"
   src={videoSrc ? videoSrc : ""}
->
-  <track
-    bind:this={trackElement}
-    id="subs"
-    kind="subtitles"
-    src={subtitleSrc ? subtitleSrc : ""}
-    on:load={() => {
-      originalCues.setCues(cues);
-    }}
-    on:cuechange={() => {
-      let currentCueId = getCurrentCueId();
-      if (currentCueId !== "") {
-        lastCueId = currentCueId;
-      }
-    }}
-  />
-</video>
+/>
+{#each filterActive(cues, activeCueIds) as cue}
+  <p>{cue.text}</p>
+{/each}
 
 <style></style>

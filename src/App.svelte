@@ -7,33 +7,26 @@
   import { SUBTITLE_EXTENSIONS } from "./utils/subtitle-extensions";
   import { VIDEO_EXTENSIONS } from "./utils/video-extensions";
   import type { ComponentEvents } from "svelte";
-  import { VTTCueMap } from "./utils/VTTCueMap";
+  import { VTTCueMap } from "./subtitles/VTTCueMap";
   import toWebVTT from "srt-webvtt";
+  import { Subtitles, filterActive } from "./subtitles/Subtitles";
 
   let DEBUG = false;
 
   let videoPlayer: VideoPlayer;
   let videoSrc: string;
-  let subtitleSrc: string;
 
   let currentTime: number;
+  $: currentTime, subtitles.update(currentTime);
   let endTime: number;
   let subtitleOffset: number = 0.0;
-  $: subtitleOffset, retimeCues();
+  $: subtitleOffset, subtitles.retime(subtitleOffset, currentTime);
 
-  let cues: TextTrackCueList;
-  let originalCues: VTTCueMap = new VTTCueMap();
-  let lastCueId: string = "";
-  function retimeCues() {
-    if (!cues || !isFinite(subtitleOffset)) return;
-
-    for (let cue of cues) {
-      const originalCue = originalCues.get(cue.id);
-      if (!originalCue) continue;
-      cue.startTime = originalCue.startTime + subtitleOffset;
-      cue.endTime = originalCue.endTime + subtitleOffset;
-    }
-  }
+  let subtitles: Subtitles = new Subtitles();
+  let cues = new VTTCueMap();
+  $: subtitles, (cues = subtitles.cues);
+  let activeCueIds = new Set<string>();
+  $: subtitles, (activeCueIds = subtitles.activeCueIds);
 
   let savedSubtitles: SavedSubtitles;
 
@@ -47,37 +40,36 @@
     // store values from files in buffers
     // to prevent unnecessary reactivity calls
     // if these values are still null
-    let videoSrcBuffer: string = null;
-    let subtitleSrcBuffer: string = null;
+    let videoURL: string = null;
+    let subtitleURL: string = null;
 
     for (const file of files) {
       const ext = file.name.split(".").pop();
       if (VIDEO_EXTENSIONS.has(ext)) {
-        videoSrcBuffer = URL.createObjectURL(file);
+        videoURL = URL.createObjectURL(file);
       } else if (SUBTITLE_EXTENSIONS.has(ext)) {
-        subtitleSrcBuffer = await processSubtitleUpload(file, ext);
+        subtitleURL = await processSubtitleUpload(file, ext);
       }
     }
 
-    if (videoSrcBuffer) videoSrc = videoSrcBuffer;
-    if (subtitleSrcBuffer) subtitleSrc = subtitleSrcBuffer;
-  }
-
-  async function processSubtitleUpload(
-    file: File,
-    ext: string
-  ): Promise<string> {
-    if (ext === "srt") {
-      const convertedURL = await toWebVTT(file);
-      return convertedURL;
+    if (videoURL) {
+      videoSrc = videoURL;
     }
-    return URL.createObjectURL(file);
-  }
 
-  function saveCurrentSubtitle() {
-    if (cues && lastCueId && lastCueId !== "") {
-      let currentSub = cues.getCueById(lastCueId) as VTTCue;
-      savedSubtitles.saveSubtitle(currentSub);
+    if (subtitleURL) {
+      subtitles = new Subtitles(subtitleURL);
+    }
+
+    // ===
+    async function processSubtitleUpload(
+      file: File,
+      ext: string
+    ): Promise<string> {
+      if (ext === "srt") {
+        const convertedURL = await toWebVTT(file);
+        return convertedURL;
+      }
+      return URL.createObjectURL(file);
     }
   }
 
@@ -87,6 +79,12 @@
     }
 
     videoPlayer.seek(event.detail.time);
+  }
+
+  function saveCurrentSubtitles() {
+    for (const cue of filterActive(subtitles.cues, subtitles.activeCueIds)) {
+      savedSubtitles.saveSubtitle(cue);
+    }
   }
 
   function onKeyDown(event: KeyboardEvent) {
@@ -120,7 +118,7 @@
       // subtitles
       case "ArrowDown":
         event.preventDefault();
-        saveCurrentSubtitle();
+        saveCurrentSubtitles();
         break;
     }
   }
@@ -134,12 +132,10 @@
       <VideoPlayer
         bind:this={videoPlayer}
         bind:videoSrc
-        bind:subtitleSrc
         bind:currentTime
         bind:endTime
         bind:cues
-        bind:originalCues
-        bind:lastCueId
+        bind:activeCueIds
       />
     </span>
 
@@ -147,7 +143,6 @@
       {#if DEBUG}
         <span id="debug-area">
           <p class="debug-text">videoSrc: {videoSrc}</p>
-          <p class="debug-text">subtitleSrc: {subtitleSrc}</p>
         </span>
       {/if}
       {#if videoPlayer}
@@ -157,7 +152,7 @@
         <span id="subtitle-viewer">
           <SubtitleViewer
             bind:cues
-            bind:lastCueId
+            bind:activeCueIds
             on:seek={handleSubtitleSeek}
           />
         </span>

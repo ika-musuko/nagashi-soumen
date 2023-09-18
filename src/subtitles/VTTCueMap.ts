@@ -1,7 +1,7 @@
 export class VTTCueMap {
-  private cueMap: Map<string, VTTCue>;
+  private cueMap: Map<string, VTTCue> = new Map();
   
-  setCues(cues: TextTrackCueList) {
+  setCues(cues: TextTrackCueList): void {
     this.cueMap = new Map<string, VTTCue>();
     for (const cue of cues) {
       let newCue = new VTTCue(
@@ -19,5 +19,13 @@ export class VTTCueMap {
     
   get(id: string): VTTCue {
     return this.cueMap.get(id);
+  }
+  
+  [Symbol.iterator](): IterableIterator<[string, VTTCue]> {
+    return this.cueMap[Symbol.iterator]();
+  }
+  
+  toArray(): [string, VTTCue][] {
+    return Array.from(this.cueMap.entries());
   }
 }
