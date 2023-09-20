@@ -1,6 +1,6 @@
 import { writable, type Writable } from "svelte/store";
 import { VTTCueMap } from "./VTTCueMap";
-import { Mutex } from "../utils/Mutex";
+import { Mutex } from "async-mutex";
 
 type SubtitleTimes = {
   startTime: number;
@@ -21,7 +21,7 @@ export class Subtitles {
   cues: VTTCueMap = new VTTCueMap();
   activeCueIds: Set<string> = new Set<string>();
 
-  private mutex: Mutex = new Mutex();
+  private mutex = new Mutex();
 
   private originalTimes: Map<string, SubtitleTimes> = new Map();
 
@@ -79,7 +79,7 @@ export class Subtitles {
   }
 
   async updateTime(currentTime: number) {
-    const unlock = await this.mutex.lock();
+    const release = await this.mutex.acquire();
     try {
       // todo: if wiping out the entire 
       // set every time and recreating it
@@ -98,7 +98,7 @@ export class Subtitles {
 
       this.notifyChange();
     } finally {
-      unlock();
+      release();
     }
   }
 
