@@ -35,8 +35,15 @@
     }
   }
 
+  export function toggleSubtitles() {
+    cueContainerVisible = !cueContainerVisible;
+  }
+
   let videoContainer: HTMLElement;
-  let videoElement: HTMLMediaElement;
+  let videoElement: HTMLVideoElement;
+
+  let cueContainerVisible: boolean;
+
   let skipSeconds = 1;
 </script>
 
@@ -55,12 +62,14 @@
     preload="auto"
     src={videoSrc ? videoSrc : ""}
   />
-  <div id="cue-container">
-    {#if DEBUG} <div class="cue-text">テスト字幕。こんにちは！</div> {/if}
-    {#each filterActive(cues, activeCueIds) as cue}
-      <div class="cue-text">{cue.text}</div>
-    {/each}
-  </div>
+  {#if cueContainerVisible}
+    <div id="cue-container">
+      {#if DEBUG} <div class="cue-text">テスト字幕。こんにちは！</div> {/if}
+      {#each filterActive(cues, activeCueIds) as cue}
+        <div class="cue-text">{cue.text}</div>
+      {/each}
+    </div>
+  {/if}
 </div>
 
 <style>

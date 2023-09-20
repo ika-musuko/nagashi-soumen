@@ -78,6 +78,10 @@
     videoPlayer.seek(event.detail.time);
   }
 
+  function toggleSubtitles() {
+    videoPlayer.toggleSubtitles();
+  }
+
   function saveCurrentSubtitles() {
     for (const cue of filterActive($subtitles.cues, $subtitles.activeCueIds)) {
       savedSubtitles.saveSubtitle(cue);
@@ -103,11 +107,13 @@
 
       // video
       case "ArrowLeft":
+      case "h":
         event.preventDefault();
         videoPlayer.rewind();
         break;
 
       case "ArrowRight":
+      case "l":
         event.preventDefault();
         videoPlayer.fastforward();
         break;
@@ -123,17 +129,24 @@
         break;
 
       // subtitles
+      case "t":
+        event.preventDefault();
+        toggleSubtitles();
+        break;
+
       case "s":
         event.preventDefault();
         saveCurrentSubtitles();
         break;
 
       case "ArrowUp":
+      case "k":
         event.preventDefault();
         navigatePrevSub();
         break;
 
       case "ArrowDown":
+      case "j":
         event.preventDefault();
         navigateNextSub();
         break;

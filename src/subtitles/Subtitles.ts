@@ -125,7 +125,6 @@ export class Subtitles {
       break;
     }
 
-    console.log("nextSubTime: from: " + currentTime + "to " + jumpTo);
     return jumpTo;
   }
 
