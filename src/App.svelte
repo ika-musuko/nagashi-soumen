@@ -19,7 +19,7 @@
   let subtitles: Subtitles = new Subtitles();
 
   let currentTime: number;
-  $: currentTime, $subtitles.updateTime(currentTime);
+  $: currentTime, $subtitles.updateActive(currentTime);
   let endTime: number;
 
   let subtitleOffset: number = 0.0;
@@ -84,15 +84,17 @@
     }
   }
 
-  async function navigateNextSub() {
-    await subtitles.navigateNext(currentTime);
+  function navigateNextSub() {
+    let jumpTo: number | null = subtitles.nextSubTime(currentTime);
+    if (jumpTo) videoPlayer.seek(jumpTo);
   }
 
-  async function navigatePrevSub() {
-    await subtitles.navigatePrev(currentTime);
+  function navigatePrevSub() {
+    let jumpTo: number | null = subtitles.prevSubTime(currentTime);
+    if (jumpTo) videoPlayer.seek(jumpTo);
   }
 
-  async function onKeyDown(event: KeyboardEvent) {
+  function onKeyDown(event: KeyboardEvent) {
     switch (event.key) {
       case "d":
         event.preventDefault();
@@ -128,12 +130,12 @@
 
       case "ArrowUp":
         event.preventDefault();
-        await navigatePrevSub();
+        navigatePrevSub();
         break;
 
       case "ArrowDown":
         event.preventDefault();
-        await navigateNextSub();
+        navigateNextSub();
         break;
 
       case "[":

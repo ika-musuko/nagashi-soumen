@@ -26,7 +26,6 @@
     "typescript": "^4.9.0"
   },
   "dependencies": {
-    "async-mutex": "^0.4.0",
     "sirv-cli": "^2.0.0",
     "srt-webvtt": "^2.0.0"
   }

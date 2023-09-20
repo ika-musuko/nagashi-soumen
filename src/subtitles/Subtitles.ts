@@ -1,6 +1,6 @@
 import { writable, type Writable } from "svelte/store";
 import { VTTCueMap } from "./VTTCueMap";
-import { Mutex } from "async-mutex";
+import { floatEquals } from "../utils/utils";
 
 type SubtitleTimes = {
   startTime: number;
@@ -20,8 +20,6 @@ export function filterActive(cues: VTTCueMap, activeCueIds: Set<string>): VTTCue
 export class Subtitles {
   cues: VTTCueMap = new VTTCueMap();
   activeCueIds: Set<string> = new Set<string>();
-
-  private mutex = new Mutex();
 
   private originalTimes: Map<string, SubtitleTimes> = new Map();
 
@@ -78,40 +76,35 @@ export class Subtitles {
     );
   }
 
-  async updateTime(currentTime: number) {
-    const release = await this.mutex.acquire();
-    try {
-      // todo: if wiping out the entire 
-      // set every time and recreating it
-      // is too slow, implement an add/remove
-      // system based on the current state
-      this.activeCueIds = new Set();
+  updateActive(currentTime: number) {
+    // todo: if wiping out the entire 
+    // set every time and recreating it
+    // is too slow, implement an add/remove
+    // system based on the current state
+    this.activeCueIds = new Set();
 
-      // todo: if linear search is too
-      // much of a performance hit,
-      // implement binary search
-      for (const [id, cue] of this.cues) {
-        if (currentTime >= cue.startTime && currentTime < cue.endTime) {
-          this.activeCueIds.add(id);
-        }
+    // todo: if linear search is too
+    // much of a performance hit,
+    // implement binary search
+    for (const [id, cue] of this.cues) {
+      if (currentTime >= cue.startTime && currentTime < cue.endTime) {
+        this.activeCueIds.add(id);
       }
-
-      this.notifyChange();
-    } finally {
-      release();
     }
+
+    this.notifyChange();
   }
 
-  // currentTime is required so we can re-update
-  // the current active subs
-  async retime(offset: number, currentTime: number) {
+  // currentTime is required so we can update 
+  // this.activeCueIds after the retime
+  retime(offset: number, currentTime: number) {
     for (const [id, cue] of this.cues) {
       const originalTime = this.originalTimes.get(id);
       cue.startTime = originalTime.startTime + offset;
       cue.endTime = originalTime.endTime + offset;
     }
 
-    await this.updateTime(currentTime);
+    this.updateActive(currentTime);
   }
 
   private cueStartTimesSorted(): number[] {
@@ -120,24 +113,23 @@ export class Subtitles {
       .sort((a, b) => a - b);
   }
 
-  async navigateNext(currentTime: number) {
+  nextSubTime(currentTime: number): number | null {
     const startTimes = this.cueStartTimesSorted();
 
     let jumpTo: number | null = null;
     for (const startTime of startTimes) {
-      if (startTime < currentTime) {
+      if (startTime < currentTime || floatEquals(startTime, currentTime)) {
         continue;
       }
       jumpTo = startTime;
       break;
     }
 
-    if (!jumpTo) return;
-
-    await this.updateTime(jumpTo);
+    console.log("nextSubTime: from: " + currentTime + "to " + jumpTo);
+    return jumpTo;
   }
 
-  async navigatePrev(currentTime: number) {
+  prevSubTime(currentTime: number): number | null {
     const startTimes = this.cueStartTimesSorted();
 
     let nextIndex: number | null = null;
@@ -149,8 +141,17 @@ export class Subtitles {
       break;
     }
 
-    if (!nextIndex || nextIndex < 1) return;
+    if (!nextIndex) return null;
 
-    await this.updateTime(startTimes[nextIndex - 1]);
+    // if there are active cues, nextIndex - 1 
+    // would be the index of the currently playing
+    // sub. so return the one before that
+    let prevIndex = (this.activeCueIds.size > 0)
+      ? nextIndex - 2
+      : nextIndex - 1;
+
+    return prevIndex > 0
+      ? startTimes[prevIndex]
+      : null;
   }
 }
