@@ -88,6 +88,11 @@
     }
   }
 
+  function copySavedSubtitles() {
+    let allSavedSubs: string = savedSubtitles.allAsString();
+    navigator.clipboard.writeText(allSavedSubs);
+  }
+
   function navigateNextSub() {
     let jumpTo: number | null = subtitles.nextSubTime(currentTime);
     if (jumpTo) videoPlayer.seek(jumpTo);
@@ -139,6 +144,11 @@
         saveCurrentSubtitles();
         break;
 
+      case "y":
+        event.preventDefault();
+        copySavedSubtitles();
+        break;
+
       case "ArrowUp":
       case "k":
         event.preventDefault();
@@ -153,12 +163,12 @@
 
       case "[":
         event.preventDefault();
-        subtitleOffset -= 0.05;
+        subtitleOffset -= 0.25;
         break;
 
       case "]":
         event.preventDefault();
-        subtitleOffset += 0.05;
+        subtitleOffset += 0.25;
         break;
     }
   }

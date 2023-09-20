@@ -12,6 +12,12 @@
     });
   }
 
+  export function allAsString(): string {
+    return Array.from(savedSubtitles)
+      .map((s) => s.text)
+      .join("\n\n");
+  }
+
   const dispatch = createEventDispatcher();
 
   function handleSeek(t: number) {
