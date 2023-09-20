@@ -24,8 +24,6 @@
         subtitleOffsetSign = "←";
       }
     }
-
-    console.log("subtitleOffsetSign: " + subtitleOffsetSign);
   }
 
   let subtitleOffsetSign: string = "⏺";

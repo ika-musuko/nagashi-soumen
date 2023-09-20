@@ -84,7 +84,15 @@
     }
   }
 
-  function onKeyDown(event: KeyboardEvent) {
+  async function navigateNextSub() {
+    await subtitles.navigateNext(currentTime);
+  }
+
+  async function navigatePrevSub() {
+    await subtitles.navigatePrev(currentTime);
+  }
+
+  async function onKeyDown(event: KeyboardEvent) {
     switch (event.key) {
       case "d":
         event.preventDefault();
@@ -113,9 +121,29 @@
         break;
 
       // subtitles
-      case "ArrowDown":
+      case "s":
         event.preventDefault();
         saveCurrentSubtitles();
+        break;
+
+      case "ArrowUp":
+        event.preventDefault();
+        await navigatePrevSub();
+        break;
+
+      case "ArrowDown":
+        event.preventDefault();
+        await navigateNextSub();
+        break;
+
+      case "[":
+        event.preventDefault();
+        subtitleOffset -= 0.05;
+        break;
+
+      case "]":
+        event.preventDefault();
+        subtitleOffset += 0.05;
         break;
     }
   }
