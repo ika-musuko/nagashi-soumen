@@ -93,6 +93,10 @@
     navigator.clipboard.writeText(allSavedSubs);
   }
 
+  function saveSubtitleFile() {
+    subtitles.saveToFile();
+  }
+
   function navigateNextSub() {
     let jumpTo: number | null = subtitles.nextSubTime(currentTime);
     if (jumpTo) videoPlayer.seek(jumpTo);
@@ -147,6 +151,11 @@
       case "y":
         event.preventDefault();
         copySavedSubtitles();
+        break;
+
+      case "w":
+        event.preventDefault();
+        saveSubtitleFile();
         break;
 
       case "ArrowUp":

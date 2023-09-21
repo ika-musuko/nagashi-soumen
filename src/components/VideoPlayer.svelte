@@ -42,7 +42,7 @@
   let videoContainer: HTMLElement;
   let videoElement: HTMLVideoElement;
 
-  let cueContainerVisible: boolean;
+  let cueContainerVisible: boolean = true;
 
   let skipSeconds = 1;
 </script>

@@ -1,6 +1,7 @@
 import { writable, type Writable } from "svelte/store";
 import { VTTCueMap } from "./VTTCueMap";
 import { floatEquals } from "../utils/utils";
+import { saveSubtitleFile } from "./subtitle-save-file";
 
 type SubtitleTimes = {
   startTime: number;
@@ -76,16 +77,13 @@ export class Subtitles {
     );
   }
 
+  saveToFile() {
+    saveSubtitleFile(this.cues);
+  }
+
   updateActive(currentTime: number) {
-    // todo: if wiping out the entire 
-    // set every time and recreating it
-    // is too slow, implement an add/remove
-    // system based on the current state
     this.activeCueIds = new Set();
 
-    // todo: if linear search is too
-    // much of a performance hit,
-    // implement binary search
     for (const [id, cue] of this.cues) {
       if (currentTime >= cue.startTime && currentTime < cue.endTime) {
         this.activeCueIds.add(id);
