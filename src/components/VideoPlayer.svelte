@@ -170,7 +170,7 @@
     background-color: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(7px) grayscale(30%) invert(100%);
     color: white;
-    border-radius: 1vw;
-    padding: 0.1vw 1vw;
+    border-radius: 0.4vw;
+    padding: 0.5vw 1vw;
   }
 </style>

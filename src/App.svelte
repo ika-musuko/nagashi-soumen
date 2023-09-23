@@ -15,7 +15,7 @@
   let mainContainer: HTMLElement;
 
   let showSidebar: boolean = true;
-  let showControls: boolean = true;
+  let showFileUpload: boolean = true;
 
   let videoPlayer: VideoPlayer;
   let videoSrc: string;
@@ -127,9 +127,9 @@
         break;
 
       // pane visibility
-      case "c":
+      case "u":
         event.preventDefault();
-        showControls = !showControls;
+        showFileUpload = !showFileUpload;
         break;
 
       case "s":
@@ -208,9 +208,13 @@
 </script>
 
 <main bind:this={mainContainer}>
-  <input type="file" multiple on:change|preventDefault={fileUpload} />
-  <br />
-  <span style="display: flex; flex-direction: column">
+  <span id="video-upload-container">
+    {#if showFileUpload}
+      <input type="file" multiple on:change|preventDefault={fileUpload} />
+    {/if}
+    <div id="dropzone">
+      <!--<Dropzone on:drop={fileUpload} />-->
+    </div>
     <span id="video-player">
       <VideoPlayer
         bind:this={videoPlayer}
@@ -263,6 +267,21 @@
     min-height: 100vh;
   }
 
+  /*
+  #dropzone {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 99999;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 255, 0.5);
+    transition: visibility 150ms, opacity, 150ms;
+    visibility: hidden;
+    opacity: 0;
+  }
+  */
+
   #video-player {
     width: 80vw;
   }
@@ -271,7 +290,8 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    width: 45vw;
+    min-width: 20vw;
+    width: 20%;
   }
 
   #subtitle-viewer {
