@@ -290,7 +290,7 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    min-width: 20vw;
+    min-width: 27vw;
     width: 20%;
   }
 
