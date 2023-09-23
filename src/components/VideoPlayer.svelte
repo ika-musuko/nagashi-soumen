@@ -1,6 +1,7 @@
 <script lang="ts">
   import { filterActive } from "../subtitles/Subtitles";
   import type { VTTCueMap } from "../subtitles/VTTCueMap";
+  import Controls from "./Controls.svelte";
 
   export let DEBUG: boolean;
 
@@ -10,6 +11,8 @@
 
   export let cues: VTTCueMap;
   export let activeCueIds: Set<string>;
+
+  export let subtitleOffset: number;
 
   export function rewind() {
     videoElement.currentTime -= skipSeconds;
@@ -25,14 +28,6 @@
 
   export function seek(time: number) {
     videoElement.currentTime = time;
-  }
-
-  export function fullscreen() {
-    if (document.fullscreenElement === null) {
-      videoContainer.requestFullscreen();
-    } else {
-      document.exitFullscreen();
-    }
   }
 
   export function toggleSubtitles() {
@@ -70,6 +65,15 @@
       {/each}
     </div>
   {/if}
+
+  <span id="controls">
+    <Controls
+      bind:currentTime
+      bind:endTime
+      bind:subtitleOffset
+      on:seek={(event) => seek(event.detail.time)}
+    />
+  </span>
 </div>
 
 <style>
@@ -85,7 +89,6 @@
   #video-player {
     width: 100%;
     height: auto;
-    border-radius: 1vw;
   }
 
   .rainbow {
@@ -110,6 +113,46 @@
     }
     100% {
       background-position: 100% 50%;
+    }
+  }
+
+  #controls {
+    position: absolute;
+    bottom: -0.4%;
+    padding: 0;
+
+    width: 100%;
+
+    background-color: rgba(0, 0, 0, 0.6);
+
+    justify-content: center;
+    align-items: center;
+
+    opacity: 0;
+    animation: controlsFadeOut 2.5s forwards;
+  }
+
+  #controls:hover {
+    animation: controlsFadeIn 0.1s forwards;
+  }
+
+  @keyframes controlsFadeIn {
+    0%,
+    1% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes controlsFadeOut {
+    0%,
+    80% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
     }
   }
 

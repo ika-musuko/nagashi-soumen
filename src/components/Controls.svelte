@@ -1,8 +1,13 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import { timeDisplay, floatEquals } from "../utils/utils";
 
   export let currentTime: number;
   export let endTime: number;
+  const dispatch = createEventDispatcher();
+  function handleSeek(t: number) {
+    dispatch("seek", { time: t });
+  }
 
   export let subtitleOffset: number;
   function formatSubtitleOffset(event: Event) {
@@ -27,63 +32,94 @@
   }
 
   let subtitleOffsetSign: string = "⏺";
+
+  let seekBar: HTMLInputElement;
 </script>
 
-<div id="container">
-  <div id="time-display">
+<span id="container">
+  <span id="time-display">
     {!isNaN(endTime)
       ? `${timeDisplay(currentTime, false)} / ${timeDisplay(endTime, false)}`
-      : "no video loaded"}
-  </div>
-  <div id="subtitle-offset-container">
+      : "--:-- / --:--"}
+  </span>
+  <input
+    id="seek-bar"
+    bind:this={seekBar}
+    type="range"
+    max={isFinite(endTime) ? endTime : 0}
+    value={isFinite(currentTime) ? currentTime : 0}
+    on:input={() => {
+      handleSeek(parseFloat(seekBar.value));
+    }}
+  />
+  <span id="subtitle-offset-container">
     <span id="subtitle-offset-sign">{subtitleOffsetSign}</span>
+    <!--<span id="subtitle-offset-input">0.05</span>-->
     <input
-      id="subtitle-offset"
+      id="subtitle-offset-input"
       type="number"
-      step="0.05"
+      step="0.25"
       value={subtitleOffset.toFixed(2)}
       on:change={formatSubtitleOffset}
     />
-  </div>
-</div>
+  </span>
+</span>
 
 <style>
   * {
-    font-size: small;
+    font-size: 100%;
   }
 
   #container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
   }
 
   #time-display {
-    font-size: large;
-    text-align: center;
+    padding: 0 5px;
+    font-size: 100%;
+  }
+
+  #seek-bar {
+    flex: 1;
+    appearance: none;
+    border: none;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+  }
+
+  #seek-bar:focus {
+    outline: none;
   }
 
   #subtitle-offset-container {
+    flex-basis: 7%;
+
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
     align-items: center;
   }
 
   #subtitle-offset-sign {
-    font-size: 3vh;
+    flex-basis: 10%;
   }
 
-  #subtitle-offset {
-    background-color: black;
-    width: 10vw;
-    height: 3vw;
+  #subtitle-offset-input {
+    width: 70%;
+    background-color: inherit;
     text-align: center;
-    border: 1px dashed;
-    border-radius: 4px;
-    border-color: #e5e5ff;
+    border: none;
+    appearance: textfield;
   }
 
-  #subtitle-offset:focus {
+  #subtitle-offset-input:focus {
     outline: none;
+  }
+
+  #subtitle-offset-input::-webkit-outer-spin-button,
+  #subtitle-offset-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
   }
 </style>

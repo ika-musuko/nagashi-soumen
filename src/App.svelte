@@ -7,11 +7,15 @@
   import { SUBTITLE_EXTENSIONS } from "./utils/subtitle-extensions";
   import { VIDEO_EXTENSIONS } from "./utils/video-extensions";
   import type { ComponentEvents } from "svelte";
-  import { VTTCueMap } from "./subtitles/VTTCueMap";
   import toWebVTT from "srt-webvtt";
   import { Subtitles, filterActive } from "./subtitles/Subtitles";
 
-  let DEBUG = false;
+  let DEBUG = true;
+
+  let mainContainer: HTMLElement;
+
+  let showSidebar: boolean = true;
+  let showControls: boolean = true;
 
   let videoPlayer: VideoPlayer;
   let videoSrc: string;
@@ -78,6 +82,14 @@
     videoPlayer.seek(event.detail.time);
   }
 
+  function toggleFullscreen() {
+    if (document.fullscreenElement === null) {
+      mainContainer.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
   function toggleSubtitles() {
     videoPlayer.toggleSubtitles();
   }
@@ -114,6 +126,17 @@
         DEBUG = !DEBUG;
         break;
 
+      // pane visibility
+      case "c":
+        event.preventDefault();
+        showControls = !showControls;
+        break;
+
+      case "s":
+        event.preventDefault();
+        showSidebar = !showSidebar;
+        break;
+
       // video
       case "ArrowLeft":
       case "h":
@@ -134,7 +157,7 @@
 
       case "f":
         event.preventDefault();
-        videoPlayer.fullscreen();
+        toggleFullscreen();
         break;
 
       // subtitles
@@ -184,10 +207,10 @@
   }
 </script>
 
-<main>
+<main bind:this={mainContainer}>
   <input type="file" multiple on:change|preventDefault={fileUpload} />
   <br />
-  <span id="main-container">
+  <span style="display: flex; flex-direction: column">
     <span id="video-player">
       <VideoPlayer
         bind:this={videoPlayer}
@@ -197,9 +220,12 @@
         bind:endTime
         bind:cues={$subtitles.cues}
         bind:activeCueIds={$subtitles.activeCueIds}
+        bind:subtitleOffset
       />
     </span>
+  </span>
 
+  {#if showSidebar}
     <span id="sidebar">
       {#if DEBUG}
         <span id="debug-area">
@@ -207,9 +233,6 @@
         </span>
       {/if}
       {#if videoPlayer}
-        <span id="controls">
-          <Controls bind:currentTime bind:endTime bind:subtitleOffset />
-        </span>
         <span id="subtitle-viewer">
           <SubtitleViewer
             bind:cues={$subtitles.cues}
@@ -217,7 +240,6 @@
             on:seek={handleSubtitleSeek}
           />
         </span>
-        <br />
         <span id="saved-subtitles"
           ><SavedSubtitles
             bind:this={savedSubtitles}
@@ -226,26 +248,38 @@
         </span>
       {/if}
     </span>
-  </span>
+  {/if}
 </main>
 <svelte:window on:keydown={onKeyDown} />
 
 <style>
-  #main-container {
+  main {
     display: flex;
     flex-direction: row;
+
+    justify-content: center;
+    align-items: center;
+
+    min-height: 100vh;
   }
 
   #video-player {
-    height: 100vw;
     width: 80vw;
   }
 
   #sidebar {
     display: flex;
     flex-direction: column;
-    max-height: 100vh;
-    width: 20vw;
+    height: 100vh;
+    width: 45vw;
+  }
+
+  #subtitle-viewer {
+    height: 40%;
+  }
+
+  #saved-subtitles {
+    height: 60%;
   }
 
   #debug-area {
@@ -255,17 +289,5 @@
 
   .debug-text {
     font-size: xx-small;
-  }
-
-  #controls {
-    max-height: 10%;
-  }
-
-  #subtitle-viewer {
-    height: 25%;
-  }
-
-  #saved-subtitles {
-    max-height: 55%;
   }
 </style>
