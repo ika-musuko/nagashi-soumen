@@ -143,9 +143,10 @@
         toggleSubtitles();
         break;
 
-      case "s":
+      case "i":
         event.preventDefault();
         saveCurrentSubtitles();
+        copySavedSubtitles();
         break;
 
       case "y":
