@@ -10,7 +10,7 @@
   import toWebVTT from "srt-webvtt";
   import { Subtitles, filterActive } from "./subtitles/Subtitles";
 
-  let DEBUG = true;
+  let DEBUG = false;
 
   let mainContainer: HTMLElement;
 

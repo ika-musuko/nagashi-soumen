@@ -10,6 +10,13 @@
   }
 
   export let subtitleOffset: number;
+  $: subtitleOffsetDisplay = subtitleOffset.toFixed(2);
+  $: subtitleOffsetSign = floatEquals(subtitleOffset, 0)
+    ? "·"
+    : subtitleOffset < 0
+    ? "⇠"
+    : "⇢";
+
   function formatSubtitleOffset(event: Event) {
     let input = event.target as HTMLInputElement;
     if (!input) return;
@@ -18,20 +25,7 @@
     if (isNaN(dataFloat)) return;
 
     subtitleOffset = dataFloat;
-
-    input.value = dataFloat.toFixed(2);
-    if (floatEquals(subtitleOffset, 0.0)) {
-      subtitleOffsetSign = "⏺";
-    } else {
-      if (subtitleOffset > 0) {
-        subtitleOffsetSign = "→";
-      } else {
-        subtitleOffsetSign = "←";
-      }
-    }
   }
-
-  let subtitleOffsetSign: string = "⏺";
 
   let seekBar: HTMLInputElement;
 </script>
@@ -59,7 +53,7 @@
       id="subtitle-offset-input"
       type="number"
       step="0.25"
-      value={subtitleOffset.toFixed(2)}
+      value={subtitleOffsetDisplay}
       on:change={formatSubtitleOffset}
     />
   </span>
@@ -106,7 +100,7 @@
   }
 
   #subtitle-offset-input {
-    width: 70%;
+    width: 6ch;
     background-color: inherit;
     text-align: center;
     border: none;
