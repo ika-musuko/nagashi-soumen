@@ -1,8 +1,7 @@
 <script lang="ts">
   import VideoPlayer from "./components/VideoPlayer.svelte";
-  import Controls from "./components/Controls.svelte";
   import SubtitleViewer from "./components/SubtitleViewer.svelte";
-  import SavedSubtitles from "./components/SavedSubtitles.svelte";
+  import SavedSubtitleViewer from "./components/SavedSubtitleViewer.svelte";
 
   import { SUBTITLE_EXTENSIONS } from "./utils/subtitle-extensions";
   import { VIDEO_EXTENSIONS } from "./utils/video-extensions";
@@ -20,7 +19,7 @@
   let videoPlayer: VideoPlayer;
   let videoSrc: string;
 
-  let subtitles: Subtitles = new Subtitles();
+  let subtitles = new Subtitles();
 
   let currentTime: number;
   $: currentTime, $subtitles.updateActive(currentTime);
@@ -29,7 +28,7 @@
   let subtitleOffset: number = 0.0;
   $: subtitleOffset, $subtitles.retime(subtitleOffset, currentTime);
 
-  let savedSubtitles: SavedSubtitles;
+  let savedSubtitleViewer: SavedSubtitleViewer;
 
   async function fileUpload(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -96,12 +95,12 @@
 
   function saveCurrentSubtitles() {
     for (const cue of filterActive($subtitles.cues, $subtitles.activeCueIds)) {
-      savedSubtitles.saveSubtitle(cue);
+      savedSubtitleViewer.saveSubtitle(cue);
     }
   }
 
   function copySavedSubtitles() {
-    let allSavedSubs: string = savedSubtitles.allAsString();
+    let allSavedSubs: string = savedSubtitleViewer.allAsString();
     navigator.clipboard.writeText(allSavedSubs);
   }
 
@@ -229,30 +228,28 @@
     </span>
   </span>
 
-  {#if showSidebar}
-    <span id="sidebar">
-      {#if DEBUG}
-        <span id="debug-area">
-          <p class="debug-text">videoSrc: {videoSrc}</p>
-        </span>
-      {/if}
-      {#if videoPlayer}
-        <span id="subtitle-viewer">
-          <SubtitleViewer
-            bind:cues={$subtitles.cues}
-            bind:activeCueIds={$subtitles.activeCueIds}
-            on:seek={handleSubtitleSeek}
-          />
-        </span>
-        <span id="saved-subtitles"
-          ><SavedSubtitles
-            bind:this={savedSubtitles}
-            on:seek={handleSubtitleSeek}
-          />
-        </span>
-      {/if}
-    </span>
-  {/if}
+  <span id="sidebar" class:hide={!showSidebar}>
+    {#if DEBUG}
+      <span id="debug-area">
+        <p class="debug-text">videoSrc: {videoSrc}</p>
+      </span>
+    {/if}
+    {#if videoPlayer}
+      <span id="subtitle-viewer">
+        <SubtitleViewer
+          bind:cues={$subtitles.cues}
+          bind:activeCueIds={$subtitles.activeCueIds}
+          on:seek={handleSubtitleSeek}
+        />
+      </span>
+      <span id="saved-subtitles">
+        <SavedSubtitleViewer
+          bind:this={savedSubtitleViewer}
+          on:seek={handleSubtitleSeek}
+        />
+      </span>
+    {/if}
+  </span>
 </main>
 <svelte:window on:keydown={onKeyDown} />
 

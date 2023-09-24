@@ -7,6 +7,10 @@ body {
   background-color: black;
 }
 
+.hide {
+  display: none !important;
+}
+
 /* reset properties */
 html,
 body,
