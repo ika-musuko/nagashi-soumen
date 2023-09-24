@@ -69,6 +69,7 @@
 </script>
 
 <hr />
+<div>{savedSubtitles.size}</div>
 <div id="subtitle-list" bind:this={savedSubtitlesElement}>
   {#each Array.from(savedSubtitles) as sub}
     <span class="subtitle-row">
