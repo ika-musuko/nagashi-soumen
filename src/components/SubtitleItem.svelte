@@ -12,7 +12,7 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<li
+<div
   class="subtitle {active ? 'active-subtitle' : 'inactive-subtitle'}"
   tabindex="-1"
   on:click={handleClick}
@@ -27,13 +27,14 @@
   >
     {text}
   </span>
-</li>
+</div>
 
 <style>
   .subtitle {
     cursor: pointer;
     border-radius: 3px;
     padding: 5px 0;
+    width: 100%;
   }
 
   .subtitle-time {

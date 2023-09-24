@@ -25,7 +25,7 @@
 </script>
 
 {#if cues}
-  <ul id="subtitle-list">
+  <div id="subtitle-list">
     {#each cues.toArray() as [id, cue], index}
       <SubtitleItem
         bind:startTime={cue.startTime}
@@ -34,7 +34,7 @@
         on:click={() => handleSeek(cue.startTime)}
       />
     {/each}
-  </ul>
+  </div>
 {/if}
 
 <style>
