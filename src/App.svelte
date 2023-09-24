@@ -40,15 +40,17 @@
     // store values from files in buffers
     // to prevent unnecessary reactivity calls
     // if these values are still null
-    let videoURL: string = null;
-    let subtitleURL: string = null;
+    let videoURL: string | null = null;
+    let subtitleURL: string | null = null;
 
+    let subtitleFilename: string | null = null;
     for (const file of files) {
       const ext = file.name.split(".").pop();
       if (VIDEO_EXTENSIONS.has(ext)) {
         videoURL = URL.createObjectURL(file);
       } else if (SUBTITLE_EXTENSIONS.has(ext)) {
         subtitleURL = await processSubtitleUpload(file, ext);
+        subtitleFilename = file.name;
       }
     }
 
@@ -58,6 +60,7 @@
 
     if (subtitleURL) {
       $subtitles.constructFromURL(subtitleURL);
+      savedSubtitleViewer.retrieveSavedSubs(subtitleFilename);
     }
 
     // ===

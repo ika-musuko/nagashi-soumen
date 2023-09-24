@@ -19,6 +19,31 @@
       .join("\n\n");
   }
 
+  // if localStorage ends up not being enough space (5-10 MB)
+  // implement this in IndexedDB
+  export function retrieveSavedSubs(filename: string) {
+    subtitleFilename = filename;
+    const storedString = localStorage.getItem(subtitleFilename);
+    if (!storedString) return;
+
+    const storedArray = JSON.parse(storedString);
+
+    savedSubtitles = new Set<VTTCue>(storedArray);
+  }
+
+  function storeSavedSubs() {
+    if (!subtitleFilename) return;
+
+    const savedSubtitlesArray = Array.from(savedSubtitles).map((s) => {
+      return { startTime: s.startTime, endTime: s.endTime, text: s.text };
+    });
+    const savedSubtitlesString = JSON.stringify(savedSubtitlesArray);
+    console.log(savedSubtitlesArray);
+    console.log(savedSubtitlesString);
+
+    window.localStorage.setItem(subtitleFilename, savedSubtitlesString);
+  }
+
   const dispatch = createEventDispatcher();
 
   function handleSeek(t: number) {
@@ -30,7 +55,9 @@
     savedSubtitles = savedSubtitles; // retrigger
   }
 
+  let subtitleFilename: string | null = null;
   let savedSubtitles = new Set<VTTCue>();
+  $: savedSubtitles, storeSavedSubs();
 
   let savedSubtitlesElement: HTMLElement;
 </script>
@@ -50,6 +77,12 @@
 </div>
 
 <style>
+  #subtitle-list {
+    max-height: 100%;
+    overflow: auto;
+    list-style: none;
+  }
+
   .subtitle-row {
     display: flex;
     flex-direction: row;
