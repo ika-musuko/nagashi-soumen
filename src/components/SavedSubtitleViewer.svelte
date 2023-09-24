@@ -54,8 +54,16 @@
   }
 
   let subtitleFilename: string | null = null;
+
   let savedSubtitles = new Set<VTTCue>();
-  $: savedSubtitles, storeSavedSubs();
+  $: savedSubtitles, processSavedSubtitles();
+  function processSavedSubtitles() {
+    let sortedSubs = Array.from(savedSubtitles).sort(
+      (a: VTTCue, b: VTTCue) => a.startTime - b.startTime
+    );
+    savedSubtitles = new Set<VTTCue>(sortedSubs);
+    storeSavedSubs();
+  }
 
   let savedSubtitlesElement: HTMLElement;
 </script>
