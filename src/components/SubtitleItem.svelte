@@ -43,12 +43,16 @@
     color: #888888;
   }
 
+  .subtitle:focus {
+    outline: none;
+  }
+
   .inactive-subtitle:hover {
     background-color: #333333;
   }
 
   .active-subtitle {
-    background-color: #773333;
+    background-color: rgba(0, 0, 255, 0.7);
   }
 
   .active-subtitle-text {

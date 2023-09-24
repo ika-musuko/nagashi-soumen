@@ -38,8 +38,6 @@
       return { startTime: s.startTime, endTime: s.endTime, text: s.text };
     });
     const savedSubtitlesString = JSON.stringify(savedSubtitlesArray);
-    console.log(savedSubtitlesArray);
-    console.log(savedSubtitlesString);
 
     window.localStorage.setItem(subtitleFilename, savedSubtitlesString);
   }
