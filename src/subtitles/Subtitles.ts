@@ -25,16 +25,8 @@ export class Subtitles {
   private originalTimes: Map<string, SubtitleTimes> = new Map();
 
   // used for parsing subtitles
-  private dummyVideo: HTMLMediaElement;
-  private dummyTrack: HTMLTrackElement;
-
-  constructor(webVTTURL?: string) {
-    this.setupStoreContract();
-
-    if (webVTTURL) {
-      this.constructFromURL(webVTTURL)
-    }
-  }
+  private dummyVideo: HTMLMediaElement = document.createElement("video");
+  private dummyTrack: HTMLTrackElement = document.createElement("track");
 
   // $ svelte store contract
   // https://svelte.dev/docs/svelte-components#script-4-prefix-stores-with-$-to-access-their-values
@@ -42,11 +34,16 @@ export class Subtitles {
   private set: Writable<Subtitles>['set'];
   private update: Writable<Subtitles>['update'];
 
-  private setupStoreContract() {
+  constructor(webVTTURL?: string) {
+    // setup store contract
     let { subscribe, set, update } = writable(this);
     this.subscribe = subscribe;
     this.set = set;
     this.update = update;
+
+    if (webVTTURL) {
+      this.constructFromURL(webVTTURL);
+    }
   }
 
   private notifyChange() {
@@ -54,9 +51,6 @@ export class Subtitles {
   }
 
   constructFromURL(webVTTURL: string) {
-    this.dummyVideo = document.createElement("video");
-    this.dummyTrack = document.createElement("track");
-
     const track = this.dummyTrack.track;
 
     this.dummyVideo.append(this.dummyTrack);
@@ -67,6 +61,7 @@ export class Subtitles {
     this.dummyTrack.addEventListener(
       "load",
       (_: Event) => {
+        // @ts-ignore: Array.from() on a TextTrackCueList works fine
         this.subs = Array.from(track.cues)
           .map(cue => {
             return {
@@ -107,6 +102,7 @@ export class Subtitles {
   retime(offset: number, currentTime: number) {
     for (const sub of this.subs) {
       const originalTime = this.originalTimes.get(sub.id);
+      if (originalTime === undefined) continue;
       sub.startTime = originalTime.startTime + offset;
       sub.endTime = originalTime.endTime + offset;
     }
