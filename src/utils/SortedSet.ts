@@ -35,6 +35,10 @@ export class SortedSet<T> {
     this.items.splice(insertIndex, 0, item);
   }
 
+  has(item: T) {
+    return this.keys.has(this.key(item));
+  }
+
   delete(item: T) {
     const key = this.key(item);
     if (!this.keys.delete(key)) return;

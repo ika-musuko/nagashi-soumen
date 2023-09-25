@@ -10,7 +10,7 @@ export function timeDisplay(seconds: number, showMs: boolean = true): string {
   const mm = minutes.toString().padStart(2, "0");
   const ss = Math.floor(remainingSeconds).toString().padStart(2, "0");
   const ms = milliseconds.toString().padStart(3, "0");
-  
+
   let timeString = (hours > 0 ? `${hh}:` : "")
     + `${mm}:${ss}`
     + (showMs ? `:${ms}` : "");
@@ -20,4 +20,13 @@ export function timeDisplay(seconds: number, showMs: boolean = true): string {
 
 export function floatEquals(a: number, b: number, epsilon: number = 0.000001): boolean {
   return Math.abs(a - b) < epsilon;
+}
+
+export function scrollContainerToItem(container: HTMLElement, item: HTMLElement) {
+  const containerRect = container.getBoundingClientRect();
+  const itemRect = item.getBoundingClientRect();
+
+  if (itemRect.top < containerRect.top || itemRect.bottom > containerRect.bottom) {
+    container.scrollTop = item.offsetTop - container.offsetTop;
+  }
 }
