@@ -97,7 +97,7 @@
   }
 
   function saveCurrentSubtitles() {
-    for (const cue of filterActive($subtitles.cues, $subtitles.activeCueIds)) {
+    for (const cue of filterActive($subtitles.subs, $subtitles.activeSubIds)) {
       savedSubtitleViewer.saveSubtitle(cue);
     }
   }
@@ -224,8 +224,8 @@
         bind:videoSrc
         bind:currentTime
         bind:endTime
-        bind:cues={$subtitles.cues}
-        bind:activeCueIds={$subtitles.activeCueIds}
+        bind:subs={$subtitles.subs}
+        bind:activeSubIds={$subtitles.activeSubIds}
         bind:subtitleOffset
       />
     </span>
@@ -240,8 +240,8 @@
     {#if videoPlayer}
       <span id="subtitle-viewer">
         <SubtitleViewer
-          bind:cues={$subtitles.cues}
-          bind:activeCueIds={$subtitles.activeCueIds}
+          bind:subs={$subtitles.subs}
+          bind:activeSubIds={$subtitles.activeSubIds}
           on:seek={handleSubtitleSeek}
         />
       </span>

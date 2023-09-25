@@ -1,9 +1,9 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { timeDisplay } from "../utils/utils";
   import SubtitleItem from "./SubtitleItem.svelte";
+  import type { Subtitle } from "../subtitles/Subtitle";
 
-  export function saveSubtitle(sub: VTTCue) {
+  export function saveSubtitle(sub: Subtitle) {
     savedSubtitles.add(sub);
     savedSubtitles = savedSubtitles; // retrigger
 
@@ -28,7 +28,7 @@
 
     const storedArray = JSON.parse(storedString);
 
-    savedSubtitles = new Set<VTTCue>(storedArray);
+    savedSubtitles = new Set<Subtitle>(storedArray);
   }
 
   function storeSavedSubs() {
@@ -48,20 +48,20 @@
     dispatch("seek", { time: t });
   }
 
-  function deleteSub(sub: VTTCue) {
+  function deleteSub(sub: Subtitle) {
     savedSubtitles.delete(sub);
     savedSubtitles = savedSubtitles; // retrigger
   }
 
   let subtitleFilename: string | null = null;
 
-  let savedSubtitles = new Set<VTTCue>();
+  let savedSubtitles = new Set<Subtitle>();
   $: savedSubtitles, processSavedSubtitles();
   function processSavedSubtitles() {
     let sortedSubs = Array.from(savedSubtitles).sort(
-      (a: VTTCue, b: VTTCue) => a.startTime - b.startTime
+      (a: Subtitle, b: Subtitle) => a.startTime - b.startTime
     );
-    savedSubtitles = new Set<VTTCue>(sortedSubs);
+    savedSubtitles = new Set<Subtitle>(sortedSubs);
     storeSavedSubs();
   }
 

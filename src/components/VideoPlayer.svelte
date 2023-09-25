@@ -1,6 +1,6 @@
 <script lang="ts">
+  import type { Subtitle } from "../subtitles/Subtitle";
   import { filterActive } from "../subtitles/Subtitles";
-  import type { VTTCueMap } from "../subtitles/VTTCueMap";
   import Controls from "./Controls.svelte";
 
   export let DEBUG: boolean;
@@ -9,8 +9,8 @@
   export let currentTime: number;
   export let endTime: number;
 
-  export let cues: VTTCueMap;
-  export let activeCueIds: Set<string>;
+  export let subs: Subtitle[];
+  export let activeSubIds: Set<string>;
 
   export let subtitleOffset: number;
 
@@ -60,7 +60,7 @@
   {#if cueContainerVisible}
     <div id="cue-container">
       {#if DEBUG} <div class="cue-text">テスト字幕。こんにちは！</div> {/if}
-      {#each filterActive(cues, activeCueIds) as cue}
+      {#each filterActive(subs, activeSubIds) as cue}
         <div class="cue-text">{cue.text}</div>
       {/each}
     </div>

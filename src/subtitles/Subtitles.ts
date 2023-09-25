@@ -1,26 +1,26 @@
 import { writable, type Writable } from "svelte/store";
-import { VTTCueMap } from "./VTTCueMap";
 import { floatEquals } from "../utils/utils";
 import { saveSubtitleFile } from "./subtitle-save-file";
+import type { Subtitle } from "./Subtitle";
 
 type SubtitleTimes = {
   startTime: number;
   endTime: number;
 }
 
-export function filterActive(cues: VTTCueMap, activeCueIds: Set<string>): VTTCue[] {
-  let activeCues: VTTCue[] = [];
-  for (const [id, cue] of cues) {
-    if (activeCueIds.has(id)) {
-      activeCues.push(cue);
+export function filterActive(subs: Subtitle[], activeSubIds: Set<string>): Subtitle[] {
+  let activeSubs: Subtitle[] = [];
+  for (const sub of subs) {
+    if (activeSubIds.has(sub.id)) {
+      activeSubs.push(sub);
     }
   }
-  return activeCues;
+  return activeSubs;
 }
 
 export class Subtitles {
-  cues: VTTCueMap = new VTTCueMap();
-  activeCueIds: Set<string> = new Set<string>();
+  subs: Subtitle[] = [];
+  activeSubIds: Set<string> = new Set<string>();
 
   private originalTimes: Map<string, SubtitleTimes> = new Map();
 
@@ -67,10 +67,19 @@ export class Subtitles {
     this.dummyTrack.addEventListener(
       "load",
       (_: Event) => {
-        this.cues.setCues(track.cues);
-        for (const [id, cue] of this.cues) {
-          const times: SubtitleTimes = { startTime: cue.startTime, endTime: cue.endTime };
-          this.originalTimes.set(id, times);
+        this.subs = Array.from(track.cues)
+          .map(cue => {
+            return {
+              id: cue.id,
+              startTime: cue.startTime,
+              endTime: cue.endTime,
+              // @ts-ignore: cue is actually a VTTCue object so it has .text
+              text: cue.text
+            } as Subtitle;
+          }).sort((s1: Subtitle, s2: Subtitle) => s1.startTime - s2.startTime);
+        for (const sub of this.subs) {
+          const times: SubtitleTimes = { startTime: sub.startTime, endTime: sub.endTime };
+          this.originalTimes.set(sub.id, times);
         }
         this.notifyChange();
       }
@@ -78,15 +87,15 @@ export class Subtitles {
   }
 
   saveToFile() {
-    saveSubtitleFile(this.cues);
+    saveSubtitleFile(this.subs);
   }
 
   updateActive(currentTime: number) {
-    this.activeCueIds = new Set();
+    this.activeSubIds = new Set();
 
-    for (const [id, cue] of this.cues) {
-      if (currentTime >= cue.startTime && currentTime < cue.endTime) {
-        this.activeCueIds.add(id);
+    for (const sub of this.subs) {
+      if (currentTime >= sub.startTime && currentTime < sub.endTime) {
+        this.activeSubIds.add(sub.id);
       }
     }
 
@@ -94,32 +103,24 @@ export class Subtitles {
   }
 
   // currentTime is required so we can update 
-  // this.activeCueIds after the retime
+  // this.activeSubIds after the retime
   retime(offset: number, currentTime: number) {
-    for (const [id, cue] of this.cues) {
-      const originalTime = this.originalTimes.get(id);
-      cue.startTime = originalTime.startTime + offset;
-      cue.endTime = originalTime.endTime + offset;
+    for (const sub of this.subs) {
+      const originalTime = this.originalTimes.get(sub.id);
+      sub.startTime = originalTime.startTime + offset;
+      sub.endTime = originalTime.endTime + offset;
     }
 
     this.updateActive(currentTime);
   }
 
-  private cueStartTimesSorted(): number[] {
-    return this.cues.toArray()
-      .map(([_, cue]) => cue.startTime)
-      .sort((a, b) => a - b);
-  }
-
   nextSubTime(currentTime: number): number | null {
-    const startTimes = this.cueStartTimesSorted();
-
     let jumpTo: number | null = null;
-    for (const startTime of startTimes) {
-      if (startTime < currentTime || floatEquals(startTime, currentTime)) {
+    for (const sub of this.subs) {
+      if (sub.startTime < currentTime || floatEquals(sub.startTime, currentTime)) {
         continue;
       }
-      jumpTo = startTime;
+      jumpTo = sub.startTime;
       break;
     }
 
@@ -127,11 +128,9 @@ export class Subtitles {
   }
 
   prevSubTime(currentTime: number): number | null {
-    const startTimes = this.cueStartTimesSorted();
-
     let nextIndex: number | null = null;
-    for (let i = 0; i < startTimes.length; i++) {
-      if (startTimes[i] < currentTime) {
+    for (let i = 0; i < this.subs.length; i++) {
+      if (this.subs[i].startTime < currentTime) {
         continue;
       }
       nextIndex = i;
@@ -140,15 +139,15 @@ export class Subtitles {
 
     if (!nextIndex) return null;
 
-    // if there are active cues, nextIndex - 1 
+    // if there are active subs, nextIndex - 1 
     // would be the index of the currently playing
     // sub. so return the one before that
-    let prevIndex = (this.activeCueIds.size > 0)
+    let prevIndex = (this.activeSubIds.size > 0)
       ? nextIndex - 2
       : nextIndex - 1;
 
     return prevIndex > 0
-      ? startTimes[prevIndex]
+      ? this.subs[prevIndex].startTime
       : null;
   }
 }

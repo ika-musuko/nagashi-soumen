@@ -1,20 +1,21 @@
-import type { VTTCueMap } from "./VTTCueMap";
+import type { Subtitle } from "./Subtitle";
 
-export function saveSubtitleFile(cues: VTTCueMap) {
+export function saveSubtitleFile(subs: Subtitle[]) {
   const srtLines: string[] = [];
   let index = 1;
 
-  let sortedCues = Array.from(cues)
-    .map(([id, cue]) => cue)
-    .sort((cueA, cueB) => cueA.startTime - cueB.startTime);
+  // this should already be sorted by startTime
+  // TODO: investigate if this is really necessary
+  let sortedSubs = Array.from(subs)
+    .sort((s1, s2) => s1.startTime - s2.startTime);
 
-  for (const cue of sortedCues) {
-    const startTimeFormatted = formatTime(cue.startTime);
-    const endTimeFormatted = formatTime(cue.endTime);
+  for (const sub of sortedSubs) {
+    const startTimeFormatted = formatTime(sub.startTime);
+    const endTimeFormatted = formatTime(sub.endTime);
 
     srtLines.push(`${index}`);
     srtLines.push(`${startTimeFormatted} --> ${endTimeFormatted}`);
-    srtLines.push(cue.text);
+    srtLines.push(sub.text);
     srtLines.push("");
     index++;
   }

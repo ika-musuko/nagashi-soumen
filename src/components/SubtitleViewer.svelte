@@ -1,12 +1,11 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { timeDisplay } from "../utils/utils";
-  import type { VTTCueMap } from "../subtitles/VTTCueMap";
   import SubtitleItem from "./SubtitleItem.svelte";
+  import type { Subtitle } from "../subtitles/Subtitle";
 
-  export let cues: VTTCueMap;
-  export let activeCueIds: Set<string>;
-  $: activeCueIds, makeActiveCuesVisible();
+  export let subs: Subtitle[];
+  export let activeSubIds: Set<string>;
+  $: activeSubIds, makeActiveCuesVisible();
   function makeActiveCuesVisible() {
     const activeSubs: HTMLCollection =
       document.getElementsByClassName("active-subtitle");
@@ -24,14 +23,14 @@
   }
 </script>
 
-{#if cues}
+{#if subs}
   <div id="subtitle-list">
-    {#each cues.toArray() as [id, cue], index}
+    {#each subs as sub}
       <SubtitleItem
-        bind:startTime={cue.startTime}
-        bind:text={cue.text}
-        active={activeCueIds.has(id)}
-        on:click={() => handleSeek(cue.startTime)}
+        bind:startTime={sub.startTime}
+        bind:text={sub.text}
+        active={activeSubIds.has(sub.id)}
+        on:click={() => handleSeek(sub.startTime)}
       />
     {/each}
   </div>
