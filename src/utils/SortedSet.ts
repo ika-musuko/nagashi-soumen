@@ -24,14 +24,14 @@ export class SortedSet<T> {
     let low = 0, high = this.items.length;
 
     while (low < high) {
-      let mid = (low + high) >>> 1;
+      const mid = (low + high) >>> 1;
       if (this.compare(this.items[mid]) < this.compare(item)) {
         low = mid + 1;
       } else {
         high = mid;
       }
     }
-    let insertIndex = low;
+    const insertIndex = low;
     this.items.splice(insertIndex, 0, item);
   }
 
