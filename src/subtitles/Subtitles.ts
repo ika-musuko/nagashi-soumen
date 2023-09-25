@@ -24,9 +24,12 @@ export class Subtitles {
 
   private originalTimes: Map<string, SubtitleTimes> = new Map();
 
-  // used for parsing subtitles
-  private dummyVideo: HTMLMediaElement = document.createElement("video");
-  private dummyTrack: HTMLTrackElement = document.createElement("track");
+  // TODO: don't parse subtitles via this dummy element hack
+  //
+  // these dummy elements cannot be initialized here 
+  // because this could get created before document even exists
+  private dummyVideo: HTMLMediaElement | undefined;
+  private dummyTrack: HTMLTrackElement | undefined;
 
   // $ svelte store contract
   // https://svelte.dev/docs/svelte-components#script-4-prefix-stores-with-$-to-access-their-values
@@ -51,8 +54,10 @@ export class Subtitles {
   }
 
   constructFromURL(webVTTURL: string) {
-    const track = this.dummyTrack.track;
+    if (this.dummyVideo === undefined) this.dummyVideo = document.createElement("video");
+    if (this.dummyTrack === undefined) this.dummyTrack = document.createElement("track");
 
+    const track = this.dummyTrack.track;
     this.dummyVideo.append(this.dummyTrack);
     this.dummyTrack.src = webVTTURL;
 
