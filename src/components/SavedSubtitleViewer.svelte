@@ -2,6 +2,7 @@
   import { createEventDispatcher } from "svelte";
   import SubtitleItem from "./SubtitleItem.svelte";
   import type { Subtitle } from "../subtitles/Subtitle";
+  import { SortedSet } from "../utils/SortedSet";
 
   export function saveSubtitle(sub: Subtitle) {
     savedSubtitles.add(sub);
@@ -14,9 +15,7 @@
   }
 
   export function allAsString(): string {
-    return Array.from(savedSubtitles)
-      .map((s) => s.text)
-      .join("\n\n");
+    return savedSubtitles.toArray().join("\n\n");
   }
 
   // if localStorage ends up not being enough space (5-10 MB)
@@ -27,18 +26,17 @@
     if (!storedString) return;
 
     const storedArray = JSON.parse(storedString);
+    for (const sub of storedArray) {
+      savedSubtitles.add(sub);
+    }
 
-    savedSubtitles = new Set<Subtitle>(storedArray);
+    savedSubtitles = savedSubtitles; // retrigger
   }
 
   function storeSavedSubs() {
     if (!subtitleFilename) return;
 
-    const savedSubtitlesArray = Array.from(savedSubtitles).map((s) => {
-      return { startTime: s.startTime, endTime: s.endTime, text: s.text };
-    });
-    const savedSubtitlesString = JSON.stringify(savedSubtitlesArray);
-
+    const savedSubtitlesString = JSON.stringify(savedSubtitles.toArray());
     window.localStorage.setItem(subtitleFilename, savedSubtitlesString);
   }
 
@@ -55,23 +53,19 @@
 
   let subtitleFilename: string | null = null;
 
-  let savedSubtitles = new Set<Subtitle>();
-  $: savedSubtitles, processSavedSubtitles();
-  function processSavedSubtitles() {
-    let sortedSubs = Array.from(savedSubtitles).sort(
-      (a: Subtitle, b: Subtitle) => a.startTime - b.startTime
-    );
-    savedSubtitles = new Set<Subtitle>(sortedSubs);
-    storeSavedSubs();
-  }
+  let savedSubtitles = new SortedSet<Subtitle>(
+    (sub: Subtitle) => sub.id,
+    (sub: Subtitle) => sub.startTime
+  );
+  $: savedSubtitles, storeSavedSubs();
 
   let savedSubtitlesElement: HTMLElement;
 </script>
 
 <hr />
-<div>{savedSubtitles.size}</div>
+<div>{savedSubtitles.size()}</div>
 <div id="subtitle-list" bind:this={savedSubtitlesElement}>
-  {#each Array.from(savedSubtitles) as sub}
+  {#each savedSubtitles.toArray() as sub}
     <span class="subtitle-row">
       <button class="delete-button" on:click={() => deleteSub(sub)}>╳</button>
       <SubtitleItem
