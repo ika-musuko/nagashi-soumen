@@ -11,3 +11,4 @@ video player optimized for language learning
   code)
 - saved subtitles are automatically copied to the clipboard
 - video seeking via subtitles and saved subtitles
+- subtitle retiming for delayed/premature subtitles
