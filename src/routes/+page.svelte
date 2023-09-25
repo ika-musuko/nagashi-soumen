@@ -68,7 +68,10 @@
 		}
 
 		// ===
-		async function processSubtitleUpload(file: File, ext: string): Promise<string> {
+		async function processSubtitleUpload(
+			file: File,
+			ext: string
+		): Promise<string> {
 			if (ext === 'srt') {
 				const convertedURL = await toWebVTT(file);
 				return convertedURL;
@@ -247,7 +250,10 @@
 				/>
 			</span>
 			<span id="saved-subtitles">
-				<SavedSubtitleViewer bind:this={savedSubtitleViewer} on:seek={handleSubtitleSeek} />
+				<SavedSubtitleViewer
+					bind:this={savedSubtitleViewer}
+					on:seek={handleSubtitleSeek}
+				/>
 			</span>
 		{/if}
 	</span>
@@ -287,7 +293,7 @@
 	#sidebar {
 		display: flex;
 		flex-direction: column;
-		height: 100vh;
+		height: 93vh;
 		min-width: 27vw;
 		width: 20%;
 	}
