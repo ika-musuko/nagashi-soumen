@@ -1,4 +1,4 @@
-import type { Subtitle } from "./Subtitle";
+import type { Subtitle } from "../models/Subtitle";
 
 export function saveSubtitleFile(subs: Subtitle[]) {
   const srtLines: string[] = [];

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import SubtitleItem from './SubtitleItem.svelte';
-	import type { Subtitle } from '../subtitles/Subtitle';
+	import type { Subtitle } from '../models/Subtitle';
 	import { scrollContainerToItem } from '../utils/utils';
 
 	export let subs: Subtitle[];
