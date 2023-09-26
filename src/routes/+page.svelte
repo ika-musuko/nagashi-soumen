@@ -127,7 +127,7 @@
 
 	function onKeyDown(event: KeyboardEvent) {
 		switch (event.key) {
-			case 'd':
+			case '/':
 				event.preventDefault();
 				DEBUG = !DEBUG;
 				break;
@@ -138,20 +138,20 @@
 				showFileUpload = !showFileUpload;
 				break;
 
-			case 's':
+			case '\\':
 				event.preventDefault();
 				showSidebar = !showSidebar;
 				break;
 
 			// video
 			case 'ArrowLeft':
-			case 'h':
+			case 'a':
 				event.preventDefault();
 				videoPlayer.rewind();
 				break;
 
 			case 'ArrowRight':
-			case 'l':
+			case 'd':
 				event.preventDefault();
 				videoPlayer.fastforward();
 				break;
@@ -161,7 +161,7 @@
 				videoPlayer.playpause();
 				break;
 
-			case 'f':
+			case 'F11':
 				event.preventDefault();
 				toggleFullscreen();
 				break;
@@ -172,30 +172,24 @@
 				toggleSubtitles();
 				break;
 
-			case 'i':
+			case 'q':
 				event.preventDefault();
 				saveCurrentSubtitles();
-				copySavedSubtitles();
 				break;
 
-			case 'y':
-				event.preventDefault();
-				copySavedSubtitles();
-				break;
-
-			case 'w':
+			case 'm':
 				event.preventDefault();
 				saveSubtitleFile();
 				break;
 
 			case 'ArrowUp':
-			case 'k':
+			case 'w':
 				event.preventDefault();
 				navigatePrevSub();
 				break;
 
 			case 'ArrowDown':
-			case 'j':
+			case 's':
 				event.preventDefault();
 				navigateNextSub();
 				break;
