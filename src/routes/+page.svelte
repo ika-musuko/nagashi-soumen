@@ -4,9 +4,11 @@
 
 	import { SUBTITLE_EXTENSIONS } from '../utils/subtitle-extensions';
 	import { VIDEO_EXTENSIONS } from '../utils/video-extensions';
-	import type { ComponentEvents } from 'svelte';
 	import toWebVTT from 'srt-webvtt';
 	import { Subtitles } from '../models/Subtitles';
+	import { SavedSubtitleStorage } from '../models/SavedSubtitleStorage';
+
+	import type { ComponentEvents } from 'svelte';
 
 	let DEBUG = false;
 
@@ -19,6 +21,8 @@
 	let videoSrc: string;
 
 	let subtitles = new Subtitles();
+
+	let savedSubtitleStorage: SavedSubtitleStorage;
 
 	let currentTime: number;
 	$: currentTime, $subtitles.updateActive(currentTime);
@@ -57,11 +61,9 @@
 			videoSrc = videoURL;
 		}
 
-		if (subtitleURL) {
-			$subtitles.constructFromURL(subtitleURL);
-			if (subtitleFilename) {
-				$subtitles.retrieveFromLocalStorage(subtitleFilename);
-			}
+		if (subtitleURL && subtitleFilename) {
+			savedSubtitleStorage = new SavedSubtitleStorage(subtitleFilename);
+			await $subtitles.constructFromURL(subtitleURL, savedSubtitleStorage);
 		}
 
 		// ===
@@ -105,10 +107,13 @@
 
 	function saveActiveSubtitles() {
 		$subtitles.saveActive();
+		savedSubtitleStorage.store(subtitles.subs.filter((s) => s.saved));
 	}
 
 	function copySavedSubtitles() {
-		let allSavedSubs: string = subtitles.allSavedAsString();
+		let allSavedSubs: string = subtitles.subs
+			.filter((s) => s.saved)
+			.join('\n\n');
 		navigator.clipboard.writeText(allSavedSubs);
 	}
 

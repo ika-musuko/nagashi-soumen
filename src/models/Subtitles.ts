@@ -2,6 +2,7 @@ import { writable, type Writable } from 'svelte/store';
 import { floatEquals } from '../utils/utils';
 import { saveSubtitleFile } from '../utils/subtitle-save-file';
 import type { Subtitle } from './Subtitle';
+import type { SavedSubtitleStorage } from './SavedSubtitleStorage';
 
 type SubtitleTimes = {
 	startTime: number;
@@ -25,23 +26,22 @@ export class Subtitles {
 	public set: Writable<Subtitles>['set'];
 	private update: Writable<Subtitles>['update'];
 
-	constructor(webVTTURL?: string) {
+	constructor() {
 		// setup store contract
 		let { subscribe, set, update } = writable(this);
 		this.subscribe = subscribe;
 		this.set = set;
 		this.update = update;
-
-		if (webVTTURL) {
-			this.constructFromURL(webVTTURL);
-		}
 	}
 
 	private notifyChange() {
 		this.update((that) => that);
 	}
 
-	constructFromURL(webVTTURL: string) {
+	async constructFromURL(
+		webVTTURL: string,
+		savedSubtitleStorage: SavedSubtitleStorage
+	) {
 		if (this.dummyVideo === undefined)
 			this.dummyVideo = document.createElement('video');
 		if (this.dummyTrack === undefined)
@@ -54,27 +54,32 @@ export class Subtitles {
 		track.mode = 'hidden';
 
 		this.dummyTrack.addEventListener('load', (_: Event) => {
-			// @ts-ignore: Array.from() on a TextTrackCueList works fine
-			this.subs = Array.from(track.cues)
-				.map((cue) => {
-					return {
-						id: cue.id,
-						startTime: cue.startTime,
-						endTime: cue.endTime,
-						// @ts-ignore: cue is actually a VTTCue object so it has .text
-						text: cue.text
-					} as Subtitle;
-				})
-				.sort((s1: Subtitle, s2: Subtitle) => s1.startTime - s2.startTime);
-			for (const sub of this.subs) {
-				const times: SubtitleTimes = {
-					startTime: sub.startTime,
-					endTime: sub.endTime
-				};
-				this.originalTimes.set(sub.id, times);
-			}
+			if (track.cues) this.constructSubs(track.cues);
+			const retrievedSavedSubs: Subtitle[] = savedSubtitleStorage.retrieve();
+			this.saveBatch(retrievedSavedSubs);
 			this.notifyChange();
 		});
+	}
+
+	private constructSubs(cues: TextTrackCueList) {
+		this.subs = Array.from(cues)
+			.map((cue) => {
+				return {
+					id: cue.id,
+					startTime: cue.startTime,
+					endTime: cue.endTime,
+					// @ts-ignore: cue is actually a VTTCue object so it has .text
+					text: cue.text
+				} as Subtitle;
+			})
+			.sort((s1: Subtitle, s2: Subtitle) => s1.startTime - s2.startTime);
+		for (const sub of this.subs) {
+			const times: SubtitleTimes = {
+				startTime: sub.startTime,
+				endTime: sub.endTime
+			};
+			this.originalTimes.set(sub.id, times);
+		}
 	}
 
 	saveToFile() {
@@ -146,18 +151,24 @@ export class Subtitles {
 		return prevIndex > 0 ? this.subs[nextIndex - 1].startTime : null;
 	}
 
-	retrieveFromLocalStorage(subtitleFilename: string) {
-		console.log('implement retrieveFromLocalStorage()');
-	}
-
-	private writeToLocalStorage() {
-		console.log('implement writeToLocalStorage()');
-	}
-
 	save(sub: Subtitle) {
 		this.modify(sub.id, (s) => {
 			s.saved = true;
 		});
+	}
+
+	saveBatch(subsToSave: Subtitle[]) {
+		if (subsToSave.length === 0) return;
+
+		for (const subToSave of subsToSave) {
+			for (const sub of this.subs) {
+				if (sub.id === subToSave.id) {
+					sub.saved = true;
+					break;
+				}
+			}
+		}
+		this.notifyChange();
 	}
 
 	unsave(sub: Subtitle) {
@@ -174,9 +185,5 @@ export class Subtitles {
 			}
 		}
 		this.notifyChange();
-	}
-
-	allSavedAsString(): string {
-		return this.subs.filter((s) => s.saved).join('\n\n');
 	}
 }
