@@ -1,6 +1,5 @@
 import { writable, type Writable } from 'svelte/store';
 import { floatEquals } from '../utils/utils';
-import { saveSubtitleFile } from '../utils/subtitle-save-file';
 import type { Subtitle } from './Subtitle';
 import type { SavedSubtitleStorage } from './SavedSubtitleStorage';
 
@@ -10,80 +9,32 @@ type SubtitleTimes = {
 };
 
 export class Subtitles {
-	subs: Subtitle[] = [];
-
 	private originalTimes: Map<string, SubtitleTimes> = new Map();
-
-	// TODO: don't parse subtitles via this dummy element hack
-	//
-	// these dummy elements cannot be initialized here
-	// because this could get created before document even exists
-	private dummyVideo: HTMLMediaElement | undefined;
-	private dummyTrack: HTMLTrackElement | undefined;
 
 	// $ svelte store contract
 	public subscribe: Writable<Subtitles>['subscribe'];
 	public set: Writable<Subtitles>['set'];
 	private update: Writable<Subtitles>['update'];
 
-	constructor() {
+	constructor(public subs: Subtitle[] = []) {
 		// setup store contract
 		let { subscribe, set, update } = writable(this);
 		this.subscribe = subscribe;
 		this.set = set;
 		this.update = update;
+
+		for (const sub of this.subs) {
+			this.originalTimes.set(sub.id, {
+				startTime: sub.startTime,
+				endTime: sub.endTime
+			});
+		}
+
+		this.notifyChange();
 	}
 
 	private notifyChange() {
 		this.update((that) => that);
-	}
-
-	async constructFromURL(
-		webVTTURL: string,
-		savedSubtitleStorage: SavedSubtitleStorage
-	) {
-		if (this.dummyVideo === undefined)
-			this.dummyVideo = document.createElement('video');
-		if (this.dummyTrack === undefined)
-			this.dummyTrack = document.createElement('track');
-
-		const track = this.dummyTrack.track;
-		this.dummyVideo.append(this.dummyTrack);
-		this.dummyTrack.src = webVTTURL;
-
-		track.mode = 'hidden';
-
-		this.dummyTrack.addEventListener('load', (_: Event) => {
-			if (track.cues) this.constructSubs(track.cues);
-			const retrievedSavedSubs: Subtitle[] = savedSubtitleStorage.retrieve();
-			this.saveBatch(retrievedSavedSubs);
-			this.notifyChange();
-		});
-	}
-
-	private constructSubs(cues: TextTrackCueList) {
-		this.subs = Array.from(cues)
-			.map((cue) => {
-				return {
-					id: cue.id,
-					startTime: cue.startTime,
-					endTime: cue.endTime,
-					// @ts-ignore: cue is actually a VTTCue object so it has .text
-					text: cue.text
-				} as Subtitle;
-			})
-			.sort((s1: Subtitle, s2: Subtitle) => s1.startTime - s2.startTime);
-		for (const sub of this.subs) {
-			const times: SubtitleTimes = {
-				startTime: sub.startTime,
-				endTime: sub.endTime
-			};
-			this.originalTimes.set(sub.id, times);
-		}
-	}
-
-	saveToFile() {
-		saveSubtitleFile(this.subs);
 	}
 
 	saveActive() {

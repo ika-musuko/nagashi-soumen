@@ -1,14 +1,15 @@
 <script lang="ts">
-	import VideoPlayer from '../lib/components/VideoPlayer.svelte';
-	import SubtitleViewer from '../lib/components/SubtitleViewer.svelte';
+	import VideoPlayer from '$lib/components/VideoPlayer.svelte';
+	import SubtitleViewer from '$lib/components/SubtitleViewer.svelte';
 
-	import { SUBTITLE_EXTENSIONS } from '../lib/utils/subtitle-extensions';
-	import { VIDEO_EXTENSIONS } from '../lib/utils/video-extensions';
-	import toWebVTT from 'srt-webvtt';
-	import { Subtitles } from '../lib/models/Subtitles';
-	import { SavedSubtitleStorage } from '../lib/models/SavedSubtitleStorage';
+	import { SUBTITLE_EXTENSIONS } from '$lib/utils/subtitle-extensions';
+	import { VIDEO_EXTENSIONS } from '$lib/utils/video-extensions';
+	import type { Subtitle } from '$lib/models/Subtitle';
+	import { Subtitles } from '$lib/models/Subtitles';
+	import { SavedSubtitleStorage } from '$lib/models/SavedSubtitleStorage';
 
 	import type { ComponentEvents } from 'svelte';
+	import { downloadSRT, fromSRT } from '$lib/utils/subtitle-io';
 
 	let DEBUG = false;
 
@@ -42,9 +43,10 @@
 		// to prevent unnecessary reactivity calls
 		// if these values are still null
 		let videoURL: string | null = null;
-		let subtitleURL: string | null = null;
 
 		let subtitleFilename: string | null = null;
+		let subtitleFileContents: string | null = null;
+
 		for (const file of files) {
 			const ext: string | undefined = file.name.split('.').pop();
 			if (ext === undefined) continue;
@@ -52,7 +54,7 @@
 			if (VIDEO_EXTENSIONS.has(ext)) {
 				videoURL = URL.createObjectURL(file);
 			} else if (SUBTITLE_EXTENSIONS.has(ext)) {
-				subtitleURL = await processSubtitleUpload(file, ext);
+				subtitleFileContents = await file.text();
 				subtitleFilename = file.name;
 			}
 		}
@@ -61,21 +63,16 @@
 			videoSrc = videoURL;
 		}
 
-		if (subtitleURL && subtitleFilename) {
-			savedSubtitleStorage = new SavedSubtitleStorage(subtitleFilename);
-			await $subtitles.constructFromURL(subtitleURL, savedSubtitleStorage);
-		}
-
-		// ===
-		async function processSubtitleUpload(
-			file: File,
-			ext: string
-		): Promise<string> {
-			if (ext === 'srt') {
-				const convertedURL = await toWebVTT(file);
-				return convertedURL;
+		if (subtitleFileContents && subtitleFilename) {
+			const subtitlesArray = fromSRT(subtitleFileContents);
+			if (subtitlesArray) {
+				subtitles = new Subtitles(subtitlesArray);
+				savedSubtitleStorage = new SavedSubtitleStorage(subtitleFilename);
+				const retrievedSavedSubs: Subtitle[] = savedSubtitleStorage.retrieve();
+				subtitles.saveBatch(retrievedSavedSubs);
+			} else {
+				alert('error processing subtitles file.');
 			}
-			return URL.createObjectURL(file);
 		}
 	}
 
@@ -118,7 +115,7 @@
 	}
 
 	function saveSubtitleFile() {
-		subtitles.saveToFile();
+		downloadSRT('captions.srt', subtitles.subs);
 	}
 
 	function navigateNextSub() {
