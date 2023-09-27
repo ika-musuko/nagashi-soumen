@@ -82,24 +82,24 @@ export class Subtitles {
 		return jumpTo;
 	}
 
-	prevSubTime(currentTime: number): number | null {
-		let nextIndex: number | null = null;
-		for (let i = 0; i < this.subs.length; i++) {
-			if (this.subs[i].startTime < currentTime) {
-				continue;
-			}
-			nextIndex = i;
-			break;
-		}
+	prevSubTime(currentTime: number): number {
+		let nextSubIndex = this.getNextSubIndex(currentTime);
+		let prevSubIndex = Math.max(0, nextSubIndex - 1);
 
-		if (!nextIndex) return null;
+		console.log(currentTime);
+		console.log(this.subs[prevSubIndex]);
 
-		// if there are active subs, nextIndex - 1
-		// would be the index of the currently playing
-		// sub. so return the one before that
-		let prevIndex = nextIndex - 1;
+		return this.subs[prevSubIndex].startTime;
+	}
 
-		return prevIndex > 0 ? this.subs[nextIndex - 1].startTime : null;
+	private getNextSubIndex(currentTime: number): number {
+		let i;
+		for (
+			i = 0;
+			i < this.subs.length && currentTime > this.subs[i].endTime;
+			i++
+		);
+		return i;
 	}
 
 	save(sub: Subtitle) {
