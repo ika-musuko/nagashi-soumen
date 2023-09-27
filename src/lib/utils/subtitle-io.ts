@@ -2,7 +2,12 @@ import type { Subtitle } from '../models/Subtitle';
 
 export function fromSRT(content: string): Subtitle[] | null {
 	const subtitles: Subtitle[] = [];
-	const chunks: string[] = content.split('\n\n');
+
+	const subtitleTagsPattern = /{\\[a-zA-Z]+\d*(?:\([^}]+\))?}/g;
+	const chunks: string[] = content
+		.replace(/\r/g, '')
+		.replace(subtitleTagsPattern, '') // TODO: handle these in the subs instead of just ignoring them?
+		.split('\n\n');
 
 	for (const chunk of chunks) {
 		const [id, timecodes, ...textLines] = chunk.split('\n');
