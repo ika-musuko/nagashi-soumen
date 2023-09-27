@@ -1,12 +1,12 @@
 <script lang="ts">
-	import VideoPlayer from '../components/VideoPlayer.svelte';
-	import SubtitleViewer from '../components/SubtitleViewer.svelte';
+	import VideoPlayer from '../lib/components/VideoPlayer.svelte';
+	import SubtitleViewer from '../lib/components/SubtitleViewer.svelte';
 
-	import { SUBTITLE_EXTENSIONS } from '../utils/subtitle-extensions';
-	import { VIDEO_EXTENSIONS } from '../utils/video-extensions';
+	import { SUBTITLE_EXTENSIONS } from '../lib/utils/subtitle-extensions';
+	import { VIDEO_EXTENSIONS } from '../lib/utils/video-extensions';
 	import toWebVTT from 'srt-webvtt';
-	import { Subtitles } from '../models/Subtitles';
-	import { SavedSubtitleStorage } from '../models/SavedSubtitleStorage';
+	import { Subtitles } from '../lib/models/Subtitles';
+	import { SavedSubtitleStorage } from '../lib/models/SavedSubtitleStorage';
 
 	import type { ComponentEvents } from 'svelte';
 
