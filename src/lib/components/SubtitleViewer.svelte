@@ -6,16 +6,33 @@
 
 	export let subs: Subtitle[];
 	$: subs, makeActiveCuesVisible();
+
+	let userScrolling: boolean = false;
+	async function tempDisableAutoscroll() {
+		if (userScrolling) return;
+		userScrolling = true;
+		await new Promise((resolve) => setTimeout(resolve, 5000));
+		userScrolling = false;
+		console.log('autoscroll re-enable');
+		makeActiveCuesVisible();
+	}
+
 	function makeActiveCuesVisible() {
-		const activeSubs: HTMLCollection =
-			document.getElementsByClassName('active-subtitle');
+		if (userScrolling) {
+			console.log('autoscrolling blocked');
+			return;
+		}
+
+		const activeSubs: Subtitle[] = subs.filter((sub) => sub.active);
 		if (activeSubs.length < 1) return;
 
-		const activeSubForView: HTMLElement = activeSubs[
-			activeSubs.length - 1
-		] as HTMLElement;
+		const activeSubForView = document.getElementById(
+			`subtitle-row-${activeSubs[0].id}`
+		);
 
-		scrollContainerToItem(subtitleListElement, activeSubForView);
+		if (activeSubForView) {
+			scrollContainerToItem(subtitleListElement, activeSubForView);
+		}
 	}
 
 	const dispatch = createEventDispatcher();
@@ -31,14 +48,20 @@
 </script>
 
 <div id="container">
-	<div id="all-subtitles-list" bind:this={subtitleListElement}>
+	<div
+		id="all-subtitles-list"
+		bind:this={subtitleListElement}
+		on:wheel={tempDisableAutoscroll}
+	>
 		{#each subs as sub}
-			<SubtitleItem
-				bind:startTime={sub.startTime}
-				bind:text={sub.text}
-				active={sub.active}
-				on:click={() => handleSeek(sub.startTime)}
-			/>
+			<span id="subtitle-row-{sub.id}">
+				<SubtitleItem
+					bind:startTime={sub.startTime}
+					bind:text={sub.text}
+					active={sub.active}
+					on:click={() => handleSeek(sub.startTime)}
+				/>
+			</span>
 		{/each}
 	</div>
 	<hr />

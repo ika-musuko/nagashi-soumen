@@ -27,17 +27,42 @@ export function floatEquals(
 
 export function scrollContainerToItem(
 	container: HTMLElement,
-	item: HTMLElement
+	item: HTMLElement,
+	duration: number = 150
 ) {
 	const containerRect = container.getBoundingClientRect();
 	const itemRect = item.getBoundingClientRect();
+	const containerScrollTop = container.scrollTop;
+	const containerHeight = containerRect.height;
 
-	if (
-		itemRect.top < containerRect.top ||
-		itemRect.bottom > containerRect.bottom
-	) {
-		container.scrollTop = item.offsetTop - container.offsetTop;
+	const itemTop = itemRect.top - containerRect.top;
+	const itemBottom = itemRect.bottom - containerRect.top;
+
+	const targetScrollTop =
+		containerScrollTop + itemTop - (containerHeight - itemRect.height) / 2;
+
+	if (itemTop < 0 || itemBottom > containerHeight) {
+		const startTime = performance.now();
+		const startScrollTop = container.scrollTop;
+
+		function scrollStep(timestamp: number) {
+			const elapsed = timestamp - startTime;
+			const progress = Math.min(elapsed / duration, 1);
+			const easedProgress = easeOutCubic(progress);
+			container.scrollTop =
+				startScrollTop + (targetScrollTop - startScrollTop) * easedProgress;
+
+			if (progress < 1) {
+				requestAnimationFrame(scrollStep);
+			}
+		}
+
+		requestAnimationFrame(scrollStep);
 	}
+}
+
+function easeOutCubic(t: number): number {
+	return 1 - Math.pow(1 - t, 3);
 }
 
 export function count<T>(array: T[], condition: (t: T) => boolean) {
