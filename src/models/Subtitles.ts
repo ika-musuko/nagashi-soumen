@@ -8,22 +8,8 @@ type SubtitleTimes = {
 	endTime: number;
 };
 
-export function filterActive(
-	subs: Subtitle[],
-	activeSubIds: Set<string>
-): Subtitle[] {
-	let activeSubs: Subtitle[] = [];
-	for (const sub of subs) {
-		if (activeSubIds.has(sub.id)) {
-			activeSubs.push(sub);
-		}
-	}
-	return activeSubs;
-}
-
 export class Subtitles {
 	subs: Subtitle[] = [];
-	activeSubIds: Set<string> = new Set<string>();
 
 	private originalTimes: Map<string, SubtitleTimes> = new Map();
 
@@ -95,15 +81,19 @@ export class Subtitles {
 		saveSubtitleFile(this.subs);
 	}
 
-	updateActive(currentTime: number) {
-		this.activeSubIds = new Set();
-
+	saveActive() {
 		for (const sub of this.subs) {
-			if (currentTime >= sub.startTime && currentTime < sub.endTime) {
-				this.activeSubIds.add(sub.id);
+			if (sub.active) {
+				sub.saved = true;
 			}
 		}
+		this.notifyChange();
+	}
 
+	updateActive(currentTime: number) {
+		for (const sub of this.subs) {
+			sub.active = currentTime >= sub.startTime && currentTime < sub.endTime;
+		}
 		this.notifyChange();
 	}
 
@@ -120,6 +110,7 @@ export class Subtitles {
 		this.updateActive(currentTime);
 	}
 
+	// TODO: use Subtitle.active property to simplify
 	nextSubTime(currentTime: number): number | null {
 		let jumpTo: number | null = null;
 		for (const sub of this.subs) {
@@ -136,6 +127,7 @@ export class Subtitles {
 		return jumpTo;
 	}
 
+	// TODO: use Subtitle.active property to simplify
 	prevSubTime(currentTime: number): number | null {
 		let nextIndex: number | null = null;
 		for (let i = 0; i < this.subs.length; i++) {
@@ -151,8 +143,42 @@ export class Subtitles {
 		// if there are active subs, nextIndex - 1
 		// would be the index of the currently playing
 		// sub. so return the one before that
-		let prevIndex = this.activeSubIds.size > 0 ? nextIndex - 2 : nextIndex - 1;
+		let prevIndex = nextIndex - 1;
 
-		return prevIndex > 0 ? this.subs[prevIndex].startTime : null;
+		return prevIndex > 0 ? this.subs[nextIndex - 1].startTime : null;
+	}
+
+	retrieveFromLocalStorage(subtitleFilename: string) {
+		console.log('implement retrieveFromLocalStorage()');
+	}
+
+	private writeToLocalStorage() {
+		console.log('implement writeToLocalStorage()');
+	}
+
+	save(sub: Subtitle) {
+		this.modify(sub.id, (s) => {
+			s.saved = true;
+		});
+	}
+
+	unsave(sub: Subtitle) {
+		this.modify(sub.id, (s) => {
+			s.saved = false;
+		});
+	}
+
+	private modify(id: string, mod: (sub: Subtitle) => void) {
+		for (const sub of this.subs) {
+			if (sub.id === id) {
+				mod(sub);
+				break;
+			}
+		}
+		this.notifyChange();
+	}
+
+	allSavedAsString(): string {
+		return this.subs.filter((s) => s.saved).join('\n\n');
 	}
 }

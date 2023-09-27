@@ -1,14 +1,12 @@
 <script lang="ts">
 	import VideoPlayer from '../components/VideoPlayer.svelte';
 	import SubtitleViewer from '../components/SubtitleViewer.svelte';
-	import SavedSubtitleViewer from '../components/SavedSubtitleViewer.svelte';
 
 	import { SUBTITLE_EXTENSIONS } from '../utils/subtitle-extensions';
 	import { VIDEO_EXTENSIONS } from '../utils/video-extensions';
 	import type { ComponentEvents } from 'svelte';
 	import toWebVTT from 'srt-webvtt';
-	import { Subtitles, filterActive } from '../models/Subtitles';
-	import { SavedSubtitles } from '../models/SavedSubtitles';
+	import { Subtitles } from '../models/Subtitles';
 
 	let DEBUG = false;
 
@@ -21,8 +19,6 @@
 	let videoSrc: string;
 
 	let subtitles = new Subtitles();
-
-	let savedSubtitles = new SavedSubtitles();
 
 	let currentTime: number;
 	$: currentTime, $subtitles.updateActive(currentTime);
@@ -64,7 +60,7 @@
 		if (subtitleURL) {
 			$subtitles.constructFromURL(subtitleURL);
 			if (subtitleFilename) {
-				$savedSubtitles.retrieveFromLocalStorage(subtitleFilename);
+				$subtitles.retrieveFromLocalStorage(subtitleFilename);
 			}
 		}
 
@@ -81,11 +77,7 @@
 		}
 	}
 
-	function handleSubtitleSeek(
-		event:
-			| ComponentEvents<SubtitleViewer>['seek']
-			| ComponentEvents<SavedSubtitleViewer>['seek']
-	) {
+	function handleSubtitleSeek(event: ComponentEvents<SubtitleViewer>['seek']) {
 		if (!videoPlayer) {
 			return;
 		}
@@ -93,10 +85,10 @@
 		videoPlayer.seek(event.detail.time);
 	}
 
-	function handleSavedSubtitleDelete(
-		event: ComponentEvents<SavedSubtitleViewer>['delete']
+	function handleSubtitleUnsave(
+		event: ComponentEvents<SubtitleViewer>['unsave']
 	) {
-		$savedSubtitles.delete(event.detail.sub);
+		$subtitles.unsave(event.detail.sub);
 	}
 
 	function toggleFullscreen() {
@@ -111,14 +103,12 @@
 		videoPlayer.toggleSubtitles();
 	}
 
-	function saveCurrentSubtitles() {
-		for (const sub of filterActive($subtitles.subs, $subtitles.activeSubIds)) {
-			$savedSubtitles.save(sub);
-		}
+	function saveActiveSubtitles() {
+		$subtitles.saveActive();
 	}
 
 	function copySavedSubtitles() {
-		let allSavedSubs: string = savedSubtitles.allAsString();
+		let allSavedSubs: string = subtitles.allSavedAsString();
 		navigator.clipboard.writeText(allSavedSubs);
 	}
 
@@ -185,7 +175,7 @@
 
 			case 'q':
 				event.preventDefault();
-				saveCurrentSubtitles();
+				saveActiveSubtitles();
 				break;
 
 			case 'm':
@@ -234,7 +224,6 @@
 				bind:currentTime
 				bind:endTime
 				bind:subs={$subtitles.subs}
-				bind:activeSubIds={$subtitles.activeSubIds}
 				bind:subtitleOffset
 			/>
 		</span>
@@ -250,15 +239,8 @@
 			<span id="subtitle-viewer">
 				<SubtitleViewer
 					bind:subs={$subtitles.subs}
-					bind:activeSubIds={$subtitles.activeSubIds}
 					on:seek={handleSubtitleSeek}
-				/>
-			</span>
-			<span id="saved-subtitles">
-				<SavedSubtitleViewer
-					bind:savedSubtitles={$savedSubtitles.subtitles.items}
-					on:seek={handleSubtitleSeek}
-					on:delete={handleSavedSubtitleDelete}
+					on:unsave={handleSubtitleUnsave}
 				/>
 			</span>
 		{/if}
@@ -305,11 +287,7 @@
 	}
 
 	#subtitle-viewer {
-		height: 40%;
-	}
-
-	#saved-subtitles {
-		height: 60%;
+		height: 100%;
 	}
 
 	#debug-area {

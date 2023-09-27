@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Subtitle } from '../models/Subtitle';
-	import { filterActive } from '../models/Subtitles';
 	import Controls from './Controls.svelte';
 
 	export let DEBUG: boolean;
@@ -10,7 +9,6 @@
 	export let endTime: number;
 
 	export let subs: Subtitle[];
-	export let activeSubIds: Set<string>;
 
 	export let subtitleOffset: number;
 
@@ -60,7 +58,7 @@
 	{#if cueContainerVisible}
 		<div id="cue-container">
 			{#if DEBUG} <div class="cue-text">テスト字幕。こんにちは！</div> {/if}
-			{#each filterActive(subs, activeSubIds) as cue}
+			{#each subs.filter((s) => s.active) as cue}
 				<div class="cue-text">{cue.text}</div>
 			{/each}
 		</div>
