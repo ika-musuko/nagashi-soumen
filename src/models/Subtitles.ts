@@ -110,7 +110,6 @@ export class Subtitles {
 		this.updateActive(currentTime);
 	}
 
-	// TODO: use Subtitle.active property to simplify
 	nextSubTime(currentTime: number): number | null {
 		let jumpTo: number | null = null;
 		for (const sub of this.subs) {
@@ -127,7 +126,6 @@ export class Subtitles {
 		return jumpTo;
 	}
 
-	// TODO: use Subtitle.active property to simplify
 	prevSubTime(currentTime: number): number | null {
 		let nextIndex: number | null = null;
 		for (let i = 0; i < this.subs.length; i++) {
