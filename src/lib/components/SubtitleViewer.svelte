@@ -13,13 +13,11 @@
 		userScrolling = true;
 		await new Promise((resolve) => setTimeout(resolve, 5000));
 		userScrolling = false;
-		console.log('autoscroll re-enable');
 		makeActiveCuesVisible();
 	}
 
 	function makeActiveCuesVisible() {
 		if (userScrolling) {
-			console.log('autoscrolling blocked');
 			return;
 		}
 
