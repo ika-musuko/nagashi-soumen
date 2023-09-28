@@ -43,6 +43,10 @@
 		color: #888888;
 	}
 
+	.subtitle-text {
+		font-size: small;
+	}
+
 	.subtitle:focus {
 		outline: none;
 	}
