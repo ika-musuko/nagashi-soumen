@@ -97,7 +97,10 @@
 	<div id="saved-subtitles-list" bind:this={savedSubtitleListElement}>
 		{#each subs as sub}
 			{#if sub.saved}
-				<span id="saved-subtitle-row-{sub.id}" class="subtitle-row">
+				<span
+					id="saved-subtitle-row-{sub.id}"
+					class="subtitle-row saved-subtitle-row"
+				>
 					<button class="delete-button" on:click={() => handleUnsave(sub)}
 						>╳</button
 					>
@@ -131,6 +134,20 @@
 		display: flex;
 		flex-direction: row;
 		row-gap: 5px;
+	}
+
+	.saved-subtitle-row {
+		animation-name: new-saved-subtitle;
+		animation-duration: 1s;
+	}
+
+	@keyframes new-saved-subtitle {
+		from {
+			background-color: #555555;
+		}
+		to {
+			background-color: inherit;
+		}
 	}
 
 	.delete-button {

@@ -52,7 +52,18 @@
 	}
 
 	.active-subtitle {
-		background-color: rgba(0, 0, 255, 0.7);
+		animation-name: active-subtitle-animation;
+		animation-duration: 0.1s;
+		animation-fill-mode: forwards;
+	}
+
+	@keyframes active-subtitle-animation {
+		from {
+			background-color: inherit;
+		}
+		to {
+			background-color: #000088;
+		}
 	}
 
 	.active-subtitle-text {

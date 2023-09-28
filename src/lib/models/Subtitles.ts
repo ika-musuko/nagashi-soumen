@@ -88,10 +88,6 @@ export class Subtitles {
 	prevSubTime(currentTime: number): number {
 		let nextSubIndex = this.getNextSubIndex(currentTime);
 		let prevSubIndex = Math.max(0, nextSubIndex - 1);
-
-		console.log(currentTime);
-		console.log(this.subs[prevSubIndex]);
-
 		return this.subs[prevSubIndex].startTime;
 	}
 
