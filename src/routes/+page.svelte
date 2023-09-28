@@ -157,13 +157,11 @@
 				break;
 
 			// video
-			case 'ArrowLeft':
 			case 'a':
 				event.preventDefault();
 				videoPlayer.rewind();
 				break;
 
-			case 'ArrowRight':
 			case 'd':
 				event.preventDefault();
 				videoPlayer.fastforward();
@@ -195,13 +193,11 @@
 				saveSubtitleFile();
 				break;
 
-			case 'ArrowUp':
 			case 'w':
 				event.preventDefault();
 				navigatePrevSub();
 				break;
 
-			case 'ArrowDown':
 			case 's':
 				event.preventDefault();
 				navigateNextSub();
