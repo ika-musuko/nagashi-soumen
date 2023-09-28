@@ -37,13 +37,16 @@ export class Subtitles {
 		this.update((that) => that);
 	}
 
-	saveActive() {
+	saveActive(): Subtitle[] {
+		const newlySaved: Subtitle[] = [];
 		for (const sub of this.subs) {
 			if (sub.active) {
 				sub.saved = true;
+				newlySaved.push(sub);
 			}
 		}
 		this.notifyChange();
+		return newlySaved;
 	}
 
 	updateActive(currentTime: number) {

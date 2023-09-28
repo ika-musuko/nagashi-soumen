@@ -8,17 +8,22 @@
 	import { Subtitles } from '$lib/models/Subtitles';
 	import { SavedSubtitleStorage } from '$lib/models/SavedSubtitleStorage';
 
-	import type { ComponentEvents } from 'svelte';
+	import { tick, type ComponentEvents } from 'svelte';
 	import { downloadSRT, fromSRT } from '$lib/utils/subtitle-io';
 
 	let DEBUG = false;
 
+	// svelte components
+	let videoPlayer: VideoPlayer;
+	let subtitleViewer: SubtitleViewer;
+
+	// raw html elements
 	let mainContainer: HTMLElement;
 
+	// data
 	let showSidebar: boolean = true;
 	let showFileUpload: boolean = true;
 
-	let videoPlayer: VideoPlayer;
 	let videoSrc: string;
 
 	let subtitles = new Subtitles();
@@ -102,9 +107,14 @@
 		videoPlayer.toggleSubtitles();
 	}
 
-	function saveActiveSubtitles() {
-		$subtitles.saveActive();
+	async function saveActiveSubtitles() {
+		const saved: Subtitle[] = $subtitles.saveActive();
 		savedSubtitleStorage.store(subtitles.subs.filter((s) => s.saved));
+
+		await tick();
+		if (saved.length > 0) {
+			subtitleViewer.makeSavedSubtitleVisible(saved[0].id);
+		}
 	}
 
 	function copySavedSubtitles() {
@@ -240,6 +250,7 @@
 		{#if videoPlayer}
 			<span id="subtitle-viewer">
 				<SubtitleViewer
+					bind:this={subtitleViewer}
 					bind:subs={$subtitles.subs}
 					on:seek={handleSubtitleSeek}
 					on:unsave={handleSubtitleUnsave}

@@ -1,11 +1,18 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, tick } from 'svelte';
 	import SubtitleItem from './SubtitleItem.svelte';
 	import type { Subtitle } from '../models/Subtitle';
 	import { count, scrollContainerToItem } from '../utils/utils';
 
 	export let subs: Subtitle[];
 	$: subs, makeActiveCuesVisible();
+
+	export function makeSavedSubtitleVisible(id: string) {
+		const savedSubForView = document.getElementById(`saved-subtitle-row-${id}`);
+		if (savedSubForView) {
+			scrollContainerToItem(savedSubtitleListElement, savedSubForView);
+		}
+	}
 
 	let userScrolling: boolean = false;
 	async function tempDisableAutoscroll() {
@@ -65,6 +72,7 @@
 	}
 
 	let subtitleListElement: HTMLElement;
+	let savedSubtitleListElement: HTMLElement;
 </script>
 
 <div id="container" on:copy={copyOnlySubtitles}>
@@ -86,10 +94,10 @@
 	</div>
 	<hr />
 	<div>{count(subs, (sub) => sub.saved)}</div>
-	<div id="saved-subtitles-list">
+	<div id="saved-subtitles-list" bind:this={savedSubtitleListElement}>
 		{#each subs as sub}
 			{#if sub.saved}
-				<span class="subtitle-row">
+				<span id="saved-subtitle-row-{sub.id}" class="subtitle-row">
 					<button class="delete-button" on:click={() => handleUnsave(sub)}
 						>╳</button
 					>
