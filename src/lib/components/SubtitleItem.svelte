@@ -18,9 +18,7 @@
 	tabindex="-1"
 	on:click={handleClick}
 >
-	<span class="subtitle-time">
-		{timeDisplay(startTime)}&nbsp;
-	</span>
+	<span class="subtitle-time">{timeDisplay(startTime)}&nbsp;</span>
 	<span
 		class="subtitle-text {active
 			? 'active-subtitle-text'
@@ -40,6 +38,7 @@
 
 	.subtitle-time {
 		user-select: none;
+		pointer-events: none;
 		font-size: small;
 		color: #888888;
 	}

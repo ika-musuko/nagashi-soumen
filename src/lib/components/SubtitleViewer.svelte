@@ -33,6 +33,28 @@
 		}
 	}
 
+	// this is needed to make sure the timestamps don't get copied on chrome
+	// chrome has a bug where it copies text from user-select: none;
+	// https://bugs.chromium.org/p/chromium/issues/detail?id=850685
+	// when this gets fixed, this hack can be removed
+	function copyOnlySubtitles(event: ClipboardEvent) {
+		const selection = window.getSelection();
+		if (!selection) return;
+
+		let finalClipboardContents = '';
+
+		for (let i = 0; i < selection.rangeCount; i++) {
+			const fragment = selection.getRangeAt(i).cloneContents();
+			const subtitleRows = Array.from(
+				fragment.querySelectorAll('.subtitle-text')
+			);
+			finalClipboardContents += subtitleRows.map((row) => row.textContent);
+		}
+
+		event.clipboardData?.setData('text/plain', finalClipboardContents);
+		event.preventDefault();
+	}
+
 	const dispatch = createEventDispatcher();
 	function handleSeek(t: number) {
 		dispatch('seek', { time: t });
@@ -45,7 +67,7 @@
 	let subtitleListElement: HTMLElement;
 </script>
 
-<div id="container">
+<div id="container" on:copy={copyOnlySubtitles}>
 	<div
 		id="all-subtitles-list"
 		bind:this={subtitleListElement}
