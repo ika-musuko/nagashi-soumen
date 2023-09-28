@@ -52,10 +52,24 @@
 
 		for (let i = 0; i < selection.rangeCount; i++) {
 			const fragment = selection.getRangeAt(i).cloneContents();
+
 			const subtitleRows = Array.from(
-				fragment.querySelectorAll('.subtitle-text')
+				fragment.querySelectorAll('.subtitle-text, #text')
 			);
-			finalClipboardContents += subtitleRows.map((row) => row.textContent);
+
+			if (subtitleRows.length > 0) {
+				finalClipboardContents += subtitleRows
+					.map((row) => row.textContent)
+					.join('\n\n');
+			} else {
+				// the subtitleRows array doesn't get loaded with the node if
+				// only one node is selected. but fragment does contain the
+				// paste data in a #text dummy node
+				const childNodes = Array.from(fragment.childNodes);
+				finalClipboardContents += childNodes
+					.map((node) => node.textContent)
+					.join('\n\n');
+			}
 		}
 
 		event.clipboardData?.setData('text/plain', finalClipboardContents);
