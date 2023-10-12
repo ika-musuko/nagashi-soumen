@@ -7,7 +7,7 @@ export class SavedSubtitleStorage {
 		const stored: string | null = window.localStorage.getItem(
 			this.subtitleFilename
 		);
-		if (!stored) return [];
+		if (stored === null) return [];
 
 		const subtitleArray: Subtitle[] = JSON.parse(stored);
 		return subtitleArray;

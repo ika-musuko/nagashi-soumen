@@ -40,7 +40,7 @@
 	async function fileUpload(event: Event) {
 		const input = event.target as HTMLInputElement;
 		const files: FileList | null = input.files;
-		if (!files) {
+		if (files === null) {
 			return;
 		}
 

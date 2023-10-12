@@ -11,17 +11,15 @@ export function fromSRT(content: string): Subtitle[] | null {
 
 	for (const chunk of chunks) {
 		const [id, timecodes, ...textLines] = chunk.split('\n');
-		if (!id || !timecodes || !textLines) continue;
+		if (id === undefined || timecodes === undefined || textLines === undefined)
+			continue;
 
 		const [startTimecode, endTimecode] = timecodes.split(' --> ');
-		if (!startTimecode || !endTimecode) continue;
+		if (startTimecode === undefined || endTimecode === undefined) continue;
 
 		const startTime = srtTimeToSeconds(startTimecode);
 		const endTime = srtTimeToSeconds(endTimecode);
-
-		if (startTime === null || endTime === null) {
-			return null;
-		}
+		if (startTime === null || endTime === null) continue;
 
 		const text = textLines.join('\n').trim();
 
