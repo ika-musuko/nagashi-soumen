@@ -46,7 +46,7 @@
 	// when this gets fixed, this hack can be removed
 	function copyOnlySubtitles(event: ClipboardEvent) {
 		const selection = window.getSelection();
-		if (!selection) return;
+		if (selection === null) return;
 
 		let finalClipboardContents = '';
 

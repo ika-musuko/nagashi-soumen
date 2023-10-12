@@ -14,25 +14,25 @@
 	let DEBUG = false;
 
 	// svelte components
-	let videoPlayer: VideoPlayer;
-	let subtitleViewer: SubtitleViewer;
+	let videoPlayer: VideoPlayer | null = null;
+	let subtitleViewer: SubtitleViewer | null = null;
 
 	// raw html elements
-	let mainContainer: HTMLElement;
+	let mainContainer: HTMLElement | null = null;
 
 	// data
 	let showSidebar: boolean = true;
 	let showFileUpload: boolean = true;
 
-	let videoSrc: string;
+	let videoSrc: string = '';
 
 	let subtitles = new Subtitles();
 
-	let savedSubtitleStorage: SavedSubtitleStorage;
+	let savedSubtitleStorage: SavedSubtitleStorage | null = null;
 
-	let currentTime: number;
+	let currentTime: number = 0;
 	$: currentTime, $subtitles.updateActive(currentTime);
-	let endTime: number;
+	let endTime: number = 0;
 
 	let subtitleOffset: number = 0.0;
 	$: subtitleOffset, $subtitles.retime(subtitleOffset, currentTime);
@@ -82,7 +82,7 @@
 	}
 
 	function handleSubtitleSeek(event: ComponentEvents<SubtitleViewer>['seek']) {
-		if (!videoPlayer) {
+		if (videoPlayer === null) {
 			return;
 		}
 
@@ -96,7 +96,7 @@
 	}
 
 	function toggleFullscreen() {
-		if (document.fullscreenElement === null) {
+		if (document.fullscreenElement === null && mainContainer !== null) {
 			mainContainer.requestFullscreen();
 		} else {
 			document.exitFullscreen();
@@ -104,15 +104,18 @@
 	}
 
 	function toggleSubtitles() {
+		if (videoPlayer === null) return;
 		videoPlayer.toggleSubtitles();
 	}
 
 	async function saveActiveSubtitles() {
 		const saved: Subtitle[] = $subtitles.saveActive();
-		savedSubtitleStorage.store(subtitles.subs.filter((s) => s.saved));
+		if (savedSubtitleStorage !== null) {
+			savedSubtitleStorage.store(subtitles.subs.filter((s) => s.saved));
+		}
 
 		await tick();
-		if (saved.length > 0) {
+		if (saved.length > 0 && subtitleViewer !== null) {
 			subtitleViewer.makeSavedSubtitleVisible(saved[0].id);
 		}
 	}
@@ -129,11 +132,15 @@
 	}
 
 	function navigateNextSub() {
+		if (videoPlayer === null) return;
+
 		let jumpTo: number | null = subtitles.nextSubTime(currentTime);
 		if (jumpTo) videoPlayer.seek(jumpTo);
 	}
 
 	function navigatePrevSub() {
+		if (videoPlayer === null) return;
+
 		let jumpTo: number | null = subtitles.prevSubTime(currentTime);
 		if (jumpTo) videoPlayer.seek(jumpTo);
 	}

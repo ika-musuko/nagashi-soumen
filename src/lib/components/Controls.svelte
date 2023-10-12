@@ -18,8 +18,8 @@
 		: '⇢';
 
 	function formatSubtitleOffset(event: Event) {
-		let input = event.target as HTMLInputElement;
-		if (!input) return;
+		let input: HTMLInputElement | null = event.target as HTMLInputElement;
+		if (input === null) return;
 
 		const dataFloat = parseFloat(input.value);
 		if (isNaN(dataFloat)) return;
