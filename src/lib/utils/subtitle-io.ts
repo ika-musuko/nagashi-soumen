@@ -19,7 +19,7 @@ export function fromSRT(content: string): Subtitle[] | null {
 		const startTime = srtTimeToSeconds(startTimecode);
 		const endTime = srtTimeToSeconds(endTimecode);
 
-		if (!startTime || !endTime) {
+		if (startTime === null || endTime === null) {
 			return null;
 		}
 
