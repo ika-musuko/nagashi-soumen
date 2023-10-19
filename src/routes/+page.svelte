@@ -10,6 +10,7 @@
 
 	import { tick, type ComponentEvents } from 'svelte';
 	import { downloadSRT, fromSRT } from '$lib/utils/subtitle-io';
+	import { filedrop } from '$lib/actions/filedrop';
 
 	let DEBUG = false;
 
@@ -19,10 +20,13 @@
 
 	// raw html elements
 	let mainContainer: HTMLElement | null = null;
+	let fileDropzone: HTMLElement | null = null;
 
 	// data
+	let fileDropzoneDragged: boolean = false;
+
 	let showSidebar: boolean = true;
-	let showFileUpload: boolean = true;
+	let showFileUpload: boolean = false;
 
 	let videoSrc: string = '';
 
@@ -37,13 +41,18 @@
 	let subtitleOffset: number = 0.0;
 	$: subtitleOffset, $subtitles.retime(subtitleOffset, currentTime);
 
-	async function fileUpload(event: Event) {
+	function handleFileInput(event: Event) {
 		const input = event.target as HTMLInputElement;
 		const files: FileList | null = input.files;
-		if (files === null) {
-			return;
-		}
+		if (!files) return;
+		fileUpload(files);
+	}
 
+	function handleFileDrop(event: CustomEvent<any>) {
+		fileUpload(event.detail.files);
+	}
+
+	async function fileUpload(files: FileList) {
 		// store values from files in buffers
 		// to prevent unnecessary reactivity calls
 		// if these values are still null
@@ -166,16 +175,19 @@
 			// video
 			case 'a':
 				event.preventDefault();
+				if (videoPlayer === null) break;
 				videoPlayer.rewind();
 				break;
 
 			case 'd':
 				event.preventDefault();
+				if (videoPlayer === null) break;
 				videoPlayer.fastforward();
 				break;
 
 			case ' ':
 				event.preventDefault();
+				if (videoPlayer === null) break;
 				videoPlayer.playpause();
 				break;
 
@@ -223,14 +235,33 @@
 	}
 </script>
 
+<div
+	id="file-dropzone"
+	class={fileDropzoneDragged
+		? 'file-dropzone-dragged'
+		: 'file-dropzone-undragged'}
+	bind:this={fileDropzone}
+	use:filedrop
+	on:filedrop={handleFileDrop}
+/>
+<svelte:document
+	on:dragover|preventDefault={() => {
+		fileDropzoneDragged = true;
+	}}
+	on:dragleave|preventDefault={(e) => {
+		if (!!e.relatedTarget) return;
+		fileDropzoneDragged = false;
+	}}
+	on:drop|preventDefault={() => {
+		fileDropzoneDragged = false;
+	}}
+/>
+
 <main bind:this={mainContainer}>
 	<span id="video-upload-container">
 		{#if showFileUpload}
-			<input type="file" multiple on:change|preventDefault={fileUpload} />
+			<input type="file" multiple on:change|preventDefault={handleFileInput} />
 		{/if}
-		<div id="dropzone">
-			<!--<Dropzone on:drop={fileUpload} />-->
-		</div>
 		<span id="video-player">
 			<VideoPlayer
 				bind:this={videoPlayer}
@@ -275,20 +306,26 @@
 		min-height: 100vh;
 	}
 
-	/*
-  #dropzone {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 99999;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 255, 0.5);
-    transition: visibility 150ms, opacity, 150ms;
-    visibility: hidden;
-    opacity: 0;
-  }
-  */
+	#file-dropzone {
+		position: fixed;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 999;
+	}
+
+	.file-dropzone-undragged {
+		display: none;
+	}
+
+	.file-dropzone-dragged {
+		display: block;
+		background: rgba(0, 0, 128, 0.5);
+		border: 1px solid #999999;
+		outline: 2px dashed #999999;
+		outline-offset: -10px;
+	}
 
 	#video-player {
 		width: 80vw;
