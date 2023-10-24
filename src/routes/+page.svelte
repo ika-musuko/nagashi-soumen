@@ -144,14 +144,14 @@
 		if (videoPlayer === null) return;
 
 		let jumpTo: number | null = subtitles.nextSubTime(currentTime);
-		if (jumpTo) videoPlayer.seek(jumpTo);
+		if (typeof jumpTo === 'number') videoPlayer.seek(jumpTo);
 	}
 
 	function navigatePrevSub() {
 		if (videoPlayer === null) return;
 
 		let jumpTo: number | null = subtitles.prevSubTime(currentTime);
-		if (jumpTo) videoPlayer.seek(jumpTo);
+		if (typeof jumpTo === 'number') videoPlayer.seek(jumpTo);
 	}
 
 	function onKeyDown(event: KeyboardEvent) {
