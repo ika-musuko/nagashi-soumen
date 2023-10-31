@@ -1,0 +1,3 @@
+#!/bin/bash
+./localexit
+npm run build

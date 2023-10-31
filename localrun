@@ -1,0 +1,7 @@
+#!/bin/bash
+processId=$(./check-nagashi)
+if [[ $? -eq 0 ]]; then
+    echo "An instance of nagashi-soumen is already running on process: ${processId}"
+    exit 1
+fi
+npm run preview & disown

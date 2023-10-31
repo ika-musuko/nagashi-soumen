@@ -1,0 +1,6 @@
+#!/bin/bash
+processId=$(ps -A | grep "vite preview" | grep -v "grep" | cut -d ' ' -f 1)
+if [[ -z $processId ]]; then
+    exit 1
+fi
+echo $processId
