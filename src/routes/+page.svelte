@@ -20,7 +20,7 @@
 
 	// raw html elements
 	let mainContainer: HTMLElement | null = null;
-	let fileDropzone: HTMLElement | null = null;
+	let fileInput: HTMLInputElement | null = null;
 
 	// data
 	let fileDropzoneDragged: boolean = false;
@@ -161,6 +161,12 @@
 				DEBUG = !DEBUG;
 				break;
 
+			case 'o':
+				event.preventDefault();
+				if (fileInput === null) break;
+				fileInput.click();
+				break;	
+
 			// pane visibility
 			case 'u':
 				event.preventDefault();
@@ -240,7 +246,6 @@
 	class={fileDropzoneDragged
 		? 'file-dropzone-dragged'
 		: 'file-dropzone-undragged'}
-	bind:this={fileDropzone}
 	use:filedrop
 	on:filedrop={handleFileDrop}
 />
@@ -259,9 +264,12 @@
 
 <main bind:this={mainContainer}>
 	<span id="video-upload-container">
-		{#if showFileUpload}
-			<input type="file" multiple on:change|preventDefault={handleFileInput} />
-		{/if}
+		<input 
+		  bind:this={fileInput}
+		  type="file" 
+		  multiple 
+		  class="{showFileUpload ? "" : "hide"}"
+		  on:change|preventDefault={handleFileInput} />
 		<span id="video-player">
 			<VideoPlayer
 				bind:this={videoPlayer}

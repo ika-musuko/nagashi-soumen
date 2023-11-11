@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher, tick } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 	import SubtitleItem from './SubtitleItem.svelte';
 	import type { Subtitle } from '../models/Subtitle';
 	import { count, scrollContainerToItem } from '../utils/utils';
