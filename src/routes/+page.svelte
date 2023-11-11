@@ -265,11 +265,11 @@
 <main bind:this={mainContainer}>
 	<span id="video-upload-container">
 		<input 
-		  bind:this={fileInput}
-		  type="file" 
-		  multiple 
-		  class="{showFileUpload ? "" : "hide"}"
-		  on:change|preventDefault={handleFileInput} />
+			bind:this={fileInput}
+			type="file" 
+			multiple 
+			class="{showFileUpload ? "" : "hide"}"
+			on:change|preventDefault={handleFileInput} />
 		<span id="video-player">
 			<VideoPlayer
 				bind:this={videoPlayer}
