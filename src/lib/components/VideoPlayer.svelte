@@ -1,12 +1,14 @@
 <script lang="ts">
 	import type { Subtitle } from '../models/Subtitle';
 	import Controls from './Controls.svelte';
+	import type { Loop } from '../models/Loop';
 
 	export let DEBUG: boolean;
 
 	export let videoSrc: string;
 	export let currentTime: number;
 	export let endTime: number;
+	export let loop: Loop;
 
 	export let subs: Subtitle[];
 
@@ -50,19 +52,23 @@
 			endTime = videoElement.duration;
 		}}
 		on:timeupdate={() => {
+			if (loop.enabled && videoElement.currentTime > loop.end) {
+				videoElement.currentTime = loop.start;	
+			}
 			currentTime = videoElement.currentTime;
 		}}
 		preload="auto"
 		src={videoSrc ? videoSrc : ''}
 	/>
-	{#if cueContainerVisible}
-		<div id="cue-container">
+	<div id="cue-container">
+		{#if loop.enabled} <div class="loop-text">loop</div> {/if}
+		{#if cueContainerVisible}
 			{#if DEBUG} <div class="cue-text">テスト字幕。こんにちは！</div> {/if}
 			{#each subs.filter((s) => s.active) as cue}
 				<div class="cue-text">{cue.text}</div>
 			{/each}
-		</div>
-	{/if}
+		{/if}
+	</div>
 
 	<span id="controls">
 		<Controls

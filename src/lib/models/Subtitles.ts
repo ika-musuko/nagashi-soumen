@@ -69,6 +69,17 @@ export class Subtitles {
 		this.updateActive(currentTime);
 	}
 
+	currentSub(currentTime: number): number {
+		let i = 0;
+		while (i < this.subs.length) {
+			if (this.subs[i].startTime > currentTime) {
+				break;
+			} 
+			i++;
+		}
+		return this.subs[Math.max(0, i - 1)];
+	}
+
 	nextSubTime(currentTime: number): number | null {
 		let jumpTo: number | null = null;
 		for (const sub of this.subs) {
@@ -89,17 +100,6 @@ export class Subtitles {
 		let nextSubIndex = this.getNextSubIndex(currentTime);
 		let prevSubIndex = Math.max(0, nextSubIndex - 1);
 		return this.subs[prevSubIndex].startTime;
-	}
-
-	currentSubTime(currentTime: number): number {
-		let i = 0;
-		while (i < this.subs.length) {
-			if (this.subs[i].startTime > currentTime) {
-				break;
-			} 
-			i++;
-		}
-		return this.subs[Math.max(0, i - 1)].startTime;
 	}
 
 	private getNextSubIndex(currentTime: number): number {

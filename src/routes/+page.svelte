@@ -5,6 +5,7 @@
 	import { SUBTITLE_EXTENSIONS } from '$lib/utils/subtitle-extensions';
 	import { VIDEO_EXTENSIONS } from '$lib/utils/video-extensions';
 	import type { Subtitle } from '$lib/models/Subtitle';
+	import type { Loop } from '$lib/models/Loop';
 	import { Subtitles } from '$lib/models/Subtitles';
 	import { SavedSubtitleStorage } from '$lib/models/SavedSubtitleStorage';
 
@@ -37,6 +38,8 @@
 	let currentTime: number = 0;
 	$: currentTime, $subtitles.updateActive(currentTime);
 	let endTime: number = 0;
+	
+	let loop: Loop = { enabled: false, start: 0, end: 0 };
 
 	let subtitleOffset: number = 0.0;
 	$: subtitleOffset, $subtitles.retime(subtitleOffset, currentTime);
@@ -95,6 +98,7 @@
 			return;
 		}
 
+		loop.enabled = false;
 		videoPlayer.seek(event.detail.time);
 	}
 
@@ -140,10 +144,23 @@
 		downloadSRT('captions.srt', subtitles.subs);
 	}
 
+	function toggleLoopCurrentSub() {
+		if (videoPlayer === null) return;
+		
+		if (loop.enabled) {
+			loop.enabled = false;
+		} else {
+			const currentSub = subtitles.currentSub(currentTime);
+			loop.enabled = true;
+			loop.start = currentSub.startTime;
+			loop.end = currentSub.endTime;
+		}
+	}
+
 	function navigateCurrentSub() {
 		if (videoPlayer === null) return;
 
-		let jumpTo: number | null = subtitles.currentSubTime(currentTime);
+		let jumpTo: number | null = subtitles.currentSub(currentTime).startTime;
 		if (typeof jumpTo === 'number') videoPlayer.seek(jumpTo);
 	}
 
@@ -224,6 +241,10 @@
 				event.preventDefault();
 				saveSubtitleFile();
 				break;
+			
+			case 'l':
+				event.preventDefault();
+				toggleLoopCurrentSub();
 
 			case 'r':
 				event.preventDefault();
@@ -289,6 +310,7 @@
 				bind:videoSrc
 				bind:currentTime
 				bind:endTime
+				bind:loop
 				bind:subs={$subtitles.subs}
 				bind:subtitleOffset
 			/>
