@@ -91,6 +91,17 @@ export class Subtitles {
 		return this.subs[prevSubIndex].startTime;
 	}
 
+	currentSubTime(currentTime: number): number {
+		let i = 0;
+		while (i < this.subs.length) {
+			if (this.subs[i].startTime > currentTime) {
+				break;
+			} 
+			i++;
+		}
+		return this.subs[Math.max(0, i - 1)].startTime;
+	}
+
 	private getNextSubIndex(currentTime: number): number {
 		let i;
 		for (

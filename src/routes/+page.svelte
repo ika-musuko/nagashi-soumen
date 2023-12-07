@@ -140,6 +140,13 @@
 		downloadSRT('captions.srt', subtitles.subs);
 	}
 
+	function navigateCurrentSub() {
+		if (videoPlayer === null) return;
+
+		let jumpTo: number | null = subtitles.currentSubTime(currentTime);
+		if (typeof jumpTo === 'number') videoPlayer.seek(jumpTo);
+	}
+
 	function navigateNextSub() {
 		if (videoPlayer === null) return;
 
@@ -216,6 +223,11 @@
 			case 'm':
 				event.preventDefault();
 				saveSubtitleFile();
+				break;
+
+			case 'r':
+				event.preventDefault();
+				navigateCurrentSub();
 				break;
 
 			case 'w':
