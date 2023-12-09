@@ -221,6 +221,13 @@
 				videoPlayer.playpause();
 				break;
 
+			case 'h':
+				event.preventDefault();
+				if (videoPlayer === null) break;
+				videoPlayer.toggleVisibility();
+				break;
+				
+
 			case 'F11':
 				event.preventDefault();
 				toggleFullscreen();

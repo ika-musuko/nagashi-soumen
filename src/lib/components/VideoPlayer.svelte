@@ -34,10 +34,15 @@
 		cueContainerVisible = !cueContainerVisible;
 	}
 
+	export function toggleVisibility() {
+		playerVisible = !playerVisible;
+	}
+
 	let videoContainer: HTMLElement;
 	let videoElement: HTMLVideoElement;
 
 	let cueContainerVisible: boolean = true;
+	let playerVisible = true;
 
 	let skipSeconds = 1;
 </script>
@@ -46,7 +51,7 @@
 <div id="video-container" bind:this={videoContainer}>
 	<video
 		id="video-player"
-		class={DEBUG ? 'rainbow' : ''}
+		class="{DEBUG ? 'rainbow' : ''} {playerVisible ? '' : 'transparent'}"
 		bind:this={videoElement}
 		on:durationchange={() => {
 			endTime = videoElement.duration;

@@ -1,5 +1,5 @@
 #!/bin/bash
-processId=$(ps -A | grep "vite preview" | grep -v "grep" | cut -d ' ' -f 1)
+processId=$(ps -A | grep "vite preview" | grep -v "grep" | cut -d ' ' -f 2)
 if [[ -z $processId ]]; then
     exit 1
 fi

@@ -11,6 +11,10 @@ body {
   display: none !important;
 }
 
+.transparent {
+  opacity: 0 !important;
+}
+
 /* reset properties */
 html,
 body,
